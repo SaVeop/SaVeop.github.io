@@ -139,7 +139,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </ul>
 <p><strong>示例</strong>：</p>
 <div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">GetMapping</span>(<span class="pl-s">"/employee"</span>)
-<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getEmployee</span>(<span class="pl-smi">Employee</span> <span class="pl-s1">employee</span>) {
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-s1">getEmployee</span>(<span class="pl-smi">Employee</span> <span class="pl-s1">employee</span>) {
     <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">employee</span>); <span class="pl-c">// 自动绑定</span>
     <span class="pl-k">return</span> <span class="pl-s">"success"</span>;
 }</pre></div>
