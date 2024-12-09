@@ -10,28 +10,28 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="### 学习笔记：2024年12月9日
+<meta name="description" content="### 学习笔记：2024-12-09
 
 ------
 
 #### **1. AOP（面向切面编程）**
 
 - **切面表达式**：
-  - AOP 中的切点表达式格式为：`execution([修饰符模式] 返回类型模式 声明类型模式 方法名模式(参数模式) throws模式)`。">
+  - AOP 中的切点表达式格式为：`execution([修饰符模式] 返回类型模式 [声明类型模式] 方法名模式(参数模式) [throws模式])`。">
 <meta property="og:title" content="学习笔记：2024年12月9日">
-<meta property="og:description" content="### 学习笔记：2024年12月9日
+<meta property="og:description" content="### 学习笔记：2024-12-09
 
 ------
 
 #### **1. AOP（面向切面编程）**
 
 - **切面表达式**：
-  - AOP 中的切点表达式格式为：`execution([修饰符模式] 返回类型模式 声明类型模式 方法名模式(参数模式) throws模式)`。">
+  - AOP 中的切点表达式格式为：`execution([修饰符模式] 返回类型模式 [声明类型模式] 方法名模式(参数模式) [throws模式])`。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-nian-12-yue-9-ri.html">
 <meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
 <title>学习笔记：2024年12月9日</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -97,13 +97,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h3>学习笔记：2024年12月9日</h3>
+<div class="markdown-body" id="postBody"><h3>学习笔记：2024-12-09</h3>
 <hr>
 <h4><strong>1. AOP（面向切面编程）</strong></h4>
 <ul>
 <li><strong>切面表达式</strong>：
 <ul>
-<li>AOP 中的切点表达式格式为：<code class="notranslate">execution([修饰符模式] 返回类型模式 声明类型模式 方法名模式(参数模式) throws模式)</code>。</li>
+<li>AOP 中的切点表达式格式为：<code class="notranslate">execution([修饰符模式] 返回类型模式 [声明类型模式] 方法名模式(参数模式) [throws模式])</code>。</li>
 <li>常见的用法：
 <ul>
 <li><code class="notranslate">execution(* com.sky.mapper.*(..))</code>：匹配 <code class="notranslate">com.sky.mapper</code> 包下的所有方法。</li>
@@ -147,15 +147,14 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 <li>
 <p>生成 JWT 示例：</p>
-<pre class="notranslate"><code class="notranslate">java复制代码public static String generateToken(String username) {
-    return Jwts.builder()
-               .setSubject(username)
-               .setIssuedAt(new Date())
-               .setExpiration(new Date(System.currentTimeMillis() + 3600000))
-               .signWith(SignatureAlgorithm.HS256, "your-secret-key-here")
-               .compact();
-}
-</code></pre>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-s1">generateToken</span>(<span class="pl-smi">String</span> <span class="pl-s1">username</span>) {
+    <span class="pl-k">return</span> <span class="pl-smi">Jwts</span>.<span class="pl-en">builder</span>()
+               .<span class="pl-en">setSubject</span>(<span class="pl-s1">username</span>)
+               .<span class="pl-en">setIssuedAt</span>(<span class="pl-k">new</span> <span class="pl-smi">Date</span>())
+               .<span class="pl-en">setExpiration</span>(<span class="pl-k">new</span> <span class="pl-smi">Date</span>(<span class="pl-smi">System</span>.<span class="pl-en">currentTimeMillis</span>() + <span class="pl-c1">3600000</span>))
+               .<span class="pl-en">signWith</span>(<span class="pl-smi">SignatureAlgorithm</span>.<span class="pl-c1">HS256</span>, <span class="pl-s">"your-secret-key-here"</span>)
+               .<span class="pl-en">compact</span>();
+}</pre></div>
 </li>
 </ul>
 </li>
@@ -204,12 +203,9 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p>对比</p>
-<pre class="notranslate"><code class="notranslate">execution(* com.sky.mapper..*(..))
-</code></pre>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">execution</span>(* <span class="pl-smi">com</span>.<span class="pl-smi">sky</span>.<span class="pl-smi">mapper</span>.<span class="pl-smi"></span>.*(..))</pre></div>
 <p>和</p>
-<pre class="notranslate"><code class="notranslate">execution(* com.sky.mapper.*.*(..))
-</code></pre>
-<p>：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">execution</span>(* <span class="pl-smi">com</span>.<span class="pl-smi">sky</span>.<span class="pl-smi">mapper</span>.*.*(..))</pre></div>
 <ul>
 <li><code class="notranslate">..</code> 可以匹配子包的类和方法，而 <code class="notranslate">*.*</code> 只能匹配当前包下的所有方法。</li>
 </ul>
@@ -235,15 +231,14 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </li>
 <li>
 <p>示例：</p>
-<pre class="notranslate"><code class="notranslate">xml复制代码&lt;update id="updateUser"&gt;
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">update</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>updateUser<span class="pl-pds">"</span></span>&gt;
     update user
-    &lt;set&gt;
-        &lt;if test="name != null"&gt;name=#{name},&lt;/if&gt;
-        &lt;if test="age != null"&gt;age=#{age},&lt;/if&gt;
-    &lt;/set&gt;
+    &lt;<span class="pl-ent">set</span>&gt;
+        &lt;<span class="pl-ent">if</span> <span class="pl-e">test</span>=<span class="pl-s"><span class="pl-pds">"</span>name != null<span class="pl-pds">"</span></span>&gt;name=#{name},&lt;/<span class="pl-ent">if</span>&gt;
+        &lt;<span class="pl-ent">if</span> <span class="pl-e">test</span>=<span class="pl-s"><span class="pl-pds">"</span>age != null<span class="pl-pds">"</span></span>&gt;age=#{age},&lt;/<span class="pl-ent">if</span>&gt;
+    &lt;/<span class="pl-ent">set</span>&gt;
     where id=#{id}
-&lt;/update&gt;
-</code></pre>
+&lt;/<span class="pl-ent">update</span>&gt;</pre></div>
 </li>
 </ul>
 </li>
