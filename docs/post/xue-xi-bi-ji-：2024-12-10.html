@@ -31,7 +31,7 @@
 <meta property="og:url" content="https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-10.html">
 <meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
 <title>学习笔记：2024-12-10</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -152,14 +152,13 @@ Spring Boot 会自动根据配置文件（<code class="notranslate">application.
 <pre class="notranslate"><code class="notranslate">&lt;foreach&gt;
 </code></pre>
 <p>标签进行批量插入操作：</p>
-<pre class="notranslate"><code class="notranslate">xml复制代码&lt;insert id="insertBatch"&gt;
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">insert</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>insertBatch<span class="pl-pds">"</span></span>&gt;
     INSERT INTO dish_flavor (dish_id, name, value)
     VALUES
-    &lt;foreach collection="list" item="dishFlavor" separator=","&gt;
+    &lt;<span class="pl-ent">foreach</span> <span class="pl-e">collection</span>=<span class="pl-s"><span class="pl-pds">"</span>list<span class="pl-pds">"</span></span> <span class="pl-e">item</span>=<span class="pl-s"><span class="pl-pds">"</span>dishFlavor<span class="pl-pds">"</span></span> <span class="pl-e">separator</span>=<span class="pl-s"><span class="pl-pds">"</span>,<span class="pl-pds">"</span></span>&gt;
         (#{dishFlavor.dishId}, #{dishFlavor.name}, #{dishFlavor.value})
-    &lt;/foreach&gt;
-&lt;/insert&gt;
-</code></pre>
+    &lt;/<span class="pl-ent">foreach</span>&gt;
+&lt;/<span class="pl-ent">insert</span>&gt;</pre></div>
 </li>
 </ul>
 </li>
