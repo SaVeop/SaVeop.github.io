@@ -1,5 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Fri, 20 Dec 2024 12:44:31 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2024-12-20</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-20.html</link><description>### 学习笔记：2024-12-20&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 21 Dec 2024 14:12:59 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2024-12-21</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-21.html</link><description>### 学习笔记：2024-12-21&#13;
+&#13;
+------&#13;
+&#13;
+### 1. **NPM 全局安装的问题**&#13;
+&#13;
+- **问题描述**&#13;
+  在 VSCode 终端中执行 `npm install -g typescript` 后，运行 `tsc -v` 提示 `'tsc' 不是内部或外部命令，也不是可运行的程序或批处理文件`。</description><guid isPermaLink="true">https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-21.html</guid><pubDate>Sat, 21 Dec 2024 14:12:30 +0000</pubDate></item><item><title>学习笔记：2024-12-20</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-20.html</link><description>### 学习笔记：2024-12-20&#13;
 &#13;
 ------&#13;
 &#13;
