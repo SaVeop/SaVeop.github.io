@@ -127,16 +127,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p><strong>允许远程连接</strong>：</p>
 <ul>
 <li>
-<ul>
-<li>
-<p>MySQL 默认只允许从本地主机连接，需要修改 MySQL 配置文件，设置 <code class="notranslate">bind-address = 0.0.0.0</code> 以允许所有 IP 地址连接。</p>
+<p>MySQL 默认只允许从本地主机连接，需要修改 MySQL 配置文件，设置 <code class="notranslate">bind-address = 0.0.0.0</code> 以允许所有 IP 地址连接.</p>
 </li>
 <li>
 <p>通过命令：</p>
 <div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>bind-address = 0.0.0.0<span class="pl-pds">"</span></span> <span class="pl-k">|</span> tee -a /etc/my.cnf</pre></div>
 <p>使 MySQL 接受所有地址的连接。</p>
-</li>
-</ul>
 </li>
 </ul>
 </li>
@@ -214,14 +210,9 @@ FLUSH PRIVILEGES;</pre></div>
 <p>错误：<code class="notranslate">Public Key Retrieval is not allowed</code></p>
 <ul>
 <li>
-<ul>
-<li>
 <p>解决方案：在 JDBC 连接 URL 中添加 <code class="notranslate">allowPublicKeyRetrieval=true</code>，禁用 SSL 时可以设置 <code class="notranslate">useSSL=false</code>：</p>
-<pre lang="text" class="notranslate"><code class="notranslate">
-jdbc:mysql://192.168.150.101:3307?allowPublicKeyRetrieval=true&amp;useSSL=false
+<pre lang="text" class="notranslate"><code class="notranslate">jdbc:mysql://192.168.150.101:3307?allowPublicKeyRetrieval=true&amp;useSSL=false
 </code></pre>
-</li>
-</ul>
 </li>
 </ul>
 </li>
