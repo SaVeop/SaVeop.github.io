@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Mon, 30 Dec 2024 17:47:53 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2024-12-30</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-30.html</link><description>### **学习笔记：2024-12-30**&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Tue, 31 Dec 2024 17:55:58 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2024-12-31</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-31.html</link><description>### **学习笔记：2024-12-31**&#13;
+&#13;
+------&#13;
+&#13;
+### **Docker 镜像下载和运行 nacos 容器的相关问题**&#13;
+&#13;
+### **1. Docker 中如何下载镜像**&#13;
+&#13;
+- **基本命令**：&#13;
+&#13;
+  ```bash&#13;
+  docker pull &lt;镜像名&gt;:&lt;标签&gt;&#13;
+  ```&#13;
+&#13;
+  - 如果省略标签，默认下载 `latest` 版本。</description><guid isPermaLink="true">https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-31.html</guid><pubDate>Tue, 31 Dec 2024 17:55:37 +0000</pubDate></item><item><title>学习笔记：2024-12-30</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-30.html</link><description>### **学习笔记：2024-12-30**&#13;
 &#13;
 ------&#13;
 &#13;
