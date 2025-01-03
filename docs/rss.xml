@@ -1,5 +1,23 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Thu, 02 Jan 2025 16:50:49 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2025-1-2</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-1-2.html</link><description>### **学习笔记：2025-1-2**&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Fri, 03 Jan 2025 17:32:09 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2025-1-3</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-1-3.html</link><description>### **学习笔记：2025-1-3**&#13;
+&#13;
+------&#13;
+&#13;
+# 综合笔记：从Spring MySQL连接问题到QPS解释&#13;
+&#13;
+## **1. Docker容器中MySQL服务的开机自启**&#13;
+&#13;
+### 方法：&#13;
+&#13;
+在 Docker 中，设置 MySQL 容器开机自启可以通过以下方式实现：&#13;
+&#13;
+1. 使用 `--restart` 参数：&#13;
+&#13;
+   ```bash&#13;
+   docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d --restart always mysql:latest&#13;
+   ```&#13;
+&#13;
+   - `--restart always`：表示无论容器是否正常退出，都自动重启。</description><guid isPermaLink="true">https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-1-3.html</guid><pubDate>Fri, 03 Jan 2025 17:31:41 +0000</pubDate></item><item><title>学习笔记：2025-1-2</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-1-2.html</link><description>### **学习笔记：2025-1-2**&#13;
 &#13;
 ------&#13;
 &#13;
