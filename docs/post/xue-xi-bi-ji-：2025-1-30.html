@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    <script src='https://blog.meekdai.com/Gmeek/plugins/GmeekVercount.js'></script>
+    <link rel="icon" href="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="### **学习笔记：2025-1-30**
+
+------
+
+### **1. `@RequestParam` vs `@RequestPart`**
+
+在 Spring Boot 中，`@RequestParam` 和 `@RequestPart` 都可以用于处理 `MultipartFile` 类型的文件上传，但它们的作用略有不同：
+
+#### **(1) `@RequestParam('file') MultipartFile file`**
+
+- 适用于**表单普通字段**以及**文件上传**。">
+<meta property="og:title" content="学习笔记：2025-1-30">
+<meta property="og:description" content="### **学习笔记：2025-1-30**
+
+------
+
+### **1. `@RequestParam` vs `@RequestPart`**
+
+在 Spring Boot 中，`@RequestParam` 和 `@RequestPart` 都可以用于处理 `MultipartFile` 类型的文件上传，但它们的作用略有不同：
+
+#### **(1) `@RequestParam('file') MultipartFile file`**
+
+- 适用于**表单普通字段**以及**文件上传**。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-1-30.html">
+<meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
+<title>学习笔记：2025-1-30</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">学习笔记：2025-1-30</h1>
+<div class="title-right">
+    <a href="https://SaVeop.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/SaVeop/SaVeop.github.io/issues/47" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3><strong>学习笔记：2025-1-30</strong></h3>
+<hr>
+<h3><strong>1. <code class="notranslate">@RequestParam</code> vs <code class="notranslate">@RequestPart</code></strong></h3>
+<p>在 Spring Boot 中，<code class="notranslate">@RequestParam</code> 和 <code class="notranslate">@RequestPart</code> 都可以用于处理 <code class="notranslate">MultipartFile</code> 类型的文件上传，但它们的作用略有不同：</p>
+<h4><strong>(1) <code class="notranslate">@RequestParam("file") MultipartFile file</code></strong></h4>
+<ul>
+<li>适用于<strong>表单普通字段</strong>以及<strong>文件上传</strong>。</li>
+<li>解析请求参数中的 <strong>multipart/form-data</strong> 类型的 <code class="notranslate">file</code>。</li>
+<li>适用于 <code class="notranslate">application/x-www-form-urlencoded</code> 或 <code class="notranslate">multipart/form-data</code> 请求格式。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">PostMapping</span>(<span class="pl-s">"/upload"</span>)
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">upload</span>(<span class="pl-c1">@</span><span class="pl-c1">RequestParam</span>(<span class="pl-s">"file"</span>) <span class="pl-smi">MultipartFile</span> <span class="pl-s1">file</span>) {
+    <span class="pl-k">return</span> <span class="pl-s">"文件名："</span> + <span class="pl-s1">file</span>.<span class="pl-en">getOriginalFilename</span>();
+}</pre></div>
+<h4><strong>(2) <code class="notranslate">@RequestPart("file") MultipartFile file</code></strong></h4>
+<ul>
+<li>主要用于处理<strong>复杂的 multipart 请求</strong>，如 JSON + 文件的组合请求。</li>
+<li><code class="notranslate">@RequestPart</code> 适用于 <code class="notranslate">Content-Type: multipart/form-data</code> 但<strong>更适用于请求体包含多个部分</strong>的情况。</li>
+<li>适用于 Spring Cloud Feign 客户端的文件上传。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">PostMapping</span>(<span class="pl-s">"/upload"</span>)
+<span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">upload</span>(<span class="pl-c1">@</span><span class="pl-c1">RequestPart</span>(<span class="pl-s">"file"</span>) <span class="pl-smi">MultipartFile</span> <span class="pl-s1">file</span>) {
+    <span class="pl-k">return</span> <span class="pl-s">"文件名："</span> + <span class="pl-s1">file</span>.<span class="pl-en">getOriginalFilename</span>();
+}</pre></div>
+<h4><strong>(3) 二者的主要区别</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th></th>
+<th><code class="notranslate">@RequestParam</code></th>
+<th><code class="notranslate">@RequestPart</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>主要用途</strong></td>
+<td>处理表单参数（包括文件）</td>
+<td>处理复杂的 multipart 请求</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>表单文件上传</td>
+<td>JSON + 文件组合</td>
+</tr>
+<tr>
+<td><strong>适用于 Feign 客户端</strong></td>
+<td>❌ 不适用</td>
+<td>✅ 适用</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>结论</strong>：</p>
+<ul>
+<li>一般文件上传用 <code class="notranslate">@RequestParam</code> 即可。</li>
+<li>需要处理复杂 multipart 请求（比如 JSON + 文件）时，使用 <code class="notranslate">@RequestPart</code>。</li>
+</ul>
+<hr>
+<h3><strong>2. 如何让 Spring Cloud 的所有项目在 IDEA 的 Services 里统一管理</strong></h3>
+<p>默认情况下，Spring Boot 项目启动后，不会自动出现在 <strong>IntelliJ IDEA Services</strong> 窗口里，需要手动配置。</p>
+<h4><strong>(1) 通过 IDEA 添加多个 Spring Boot 运行配置</strong></h4>
+<ol>
+<li><strong>打开 <code class="notranslate">Run | Edit Configurations</code></strong></li>
+<li><strong>点击 <code class="notranslate">+</code> 号</strong> → <strong>选择 Spring Boot</strong></li>
+<li><strong>为每个微服务配置启动类</strong></li>
+<li><strong>在 Services 里添加所有 Spring Boot 运行配置</strong></li>
+<li><strong>这样所有 Spring Cloud 项目都可以统一管理，一键启动</strong></li>
+</ol>
+<h4><strong>(2) 直接使用 <code class="notranslate">docker-compose</code> 统一管理</strong></h4>
+<p>如果你的 Spring Cloud 项目使用 Docker 部署，可以在 IDEA 的 <strong>Services</strong> 里启用 <code class="notranslate">docker-compose</code> 进行统一管理。</p>
+<h4><strong>(3) 使用 <code class="notranslate">spring-boot-admin</code></strong></h4>
+<ul>
+<li><code class="notranslate">spring-boot-admin</code> 可以监控多个 Spring Boot 应用，并提供统一的 UI 管理界面。</li>
+</ul>
+<p><strong>结论</strong>：</p>
+<ul>
+<li><strong>方法 1</strong> 适用于本地开发环境（IDEA 配置）。</li>
+<li><strong>方法 2</strong> 适用于容器化部署的 Spring Cloud 项目（Docker）。</li>
+<li><strong>方法 3</strong> 适用于更复杂的监控需求（Spring Boot Admin）。</li>
+</ul>
+<hr>
+<h3><strong>3. Redis 为什么要预热？适用于什么场景？</strong></h3>
+<p><strong>Redis 预热（Warm-Up）</strong> 是指 <strong>在 Redis 服务启动或缓存失效后，提前加载数据到缓存</strong>，避免大并发时数据库压力过大。</p>
+<h4><strong>(1) 预热的主要作用</strong></h4>
+<ol>
+<li>避免缓存雪崩：
+<ul>
+<li>如果缓存大规模过期，所有请求会打到数据库，导致数据库崩溃。</li>
+</ul>
+</li>
+<li>减少缓存击穿风险：
+<ul>
+<li><strong>热点数据</strong>（高频访问）如果突然失效，数据库会被瞬间压垮。</li>
+</ul>
+</li>
+<li>提高系统启动速度：
+<ul>
+<li>Redis 重新启动时，避免缓慢加载数据。</li>
+</ul>
+</li>
+</ol>
+<h4><strong>(2) 适用场景</strong></h4>
+<ul>
+<li><strong>高并发系统</strong>（电商秒杀、抢购场景）</li>
+<li><strong>热点数据缓存</strong>（排行榜、热门商品、新闻推荐）</li>
+<li><strong>定期计算的数据</strong>（统计报表）</li>
+</ul>
+<h4><strong>(3) 预热方式</strong></h4>
+<ol>
+<li>应用启动时主动加载：
+<ul>
+<li>在 <code class="notranslate">ApplicationRunner</code> 或 <code class="notranslate">CommandLineRunner</code> 里初始化 Redis 缓存。</li>
+</ul>
+</li>
+<li>定时任务定期预热：
+<ul>
+<li>定时从数据库同步热点数据到 Redis。</li>
+</ul>
+</li>
+<li>Redis 持久化（RDB / AOF）：
+<ul>
+<li>通过 <code class="notranslate">RDB</code> 或 <code class="notranslate">AOF</code> 避免服务重启后数据丢失。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3><strong>4. Bitmap 位图的 bit 概念，与 1024 的关系</strong></h3>
+<h4><strong>(1) 位图（Bitmap）</strong></h4>
+<ul>
+<li>Redis 的 <strong>Bitmap</strong> 主要用于<strong>存储二进制状态</strong>（0 和 1）。</li>
+<li><strong>每个 bit 只占 1 位</strong>，可以用极小的空间存储大规模数据。</li>
+</ul>
+<h4><strong>(2) <code class="notranslate">bit</code> 是什么？</strong></h4>
+<ul>
+<li><code class="notranslate">bit</code>（位）是最小的存储单位。</li>
+<li><strong>1 byte（字节） = 8 bit</strong></li>
+<li><strong>1 KB = 1024 byte = 8192 bit</strong></li>
+</ul>
+<h4><strong>(3) Bitmap 适用场景</strong></h4>
+<ul>
+<li><strong>用户签到</strong>（记录每天是否签到）</li>
+<li><strong>UV 统计</strong>（是否访问过网站）</li>
+<li><strong>黑名单管理</strong>（标记是否封禁）</li>
+</ul>
+<h4><strong>结论</strong>：</h4>
+<ul>
+<li><strong>Bitmap 的 <code class="notranslate">bit</code> 与 1024 关系不大</strong>，但 1024 只是计算存储大小的基本单位。</li>
+<li><strong>Bitmap 适合高效存储 0/1 状态数据</strong>，可以节省大量空间。</li>
+</ul>
+<hr>
+<h3><strong>5. 为什么 Redis BGSAVE 采用 COW 机制可以避免脏数据？</strong></h3>
+<h4><strong>(1) BGSAVE 过程</strong></h4>
+<ol>
+<li>fork 子进程
+<ul>
+<li>子进程共享主进程内存。</li>
+</ul>
+</li>
+<li>子进程写 RDB
+<ul>
+<li>读取 fork 时的快照数据，并写入 RDB 文件。</li>
+</ul>
+</li>
+<li>主进程继续处理请求
+<ul>
+<li><strong>读操作：</strong> 访问共享内存。</li>
+<li><strong>写操作：</strong> 由于 COW 机制，拷贝数据副本 B，再修改。</li>
+</ul>
+</li>
+</ol>
+<h4><strong>(2) 如何避免脏数据？</strong></h4>
+<ul>
+<li><strong>COW 机制下，子进程只访问 fork 时的快照，不受主进程修改影响</strong>。</li>
+<li><strong>主进程的修改只影响数据副本 B，不影响原始数据</strong>，所以不会影响 RDB 备份。</li>
+</ul>
+<hr>
+<h3><strong>6. 如果没有 Copy-On-Write（COW），会出现什么问题？</strong></h3>
+<p>如果没有 COW 机制：</p>
+<ol>
+<li>主进程直接修改共享数据
+<ul>
+<li>可能导致 RDB 备份数据在保存过程中被篡改。</li>
+</ul>
+</li>
+<li>快照数据可能不一致
+<ul>
+<li>如果主进程在 <code class="notranslate">BGSAVE</code> 过程中修改 key，RDB 可能会存入不完整的数据。</li>
+</ul>
+</li>
+<li>可能存入“部分新、部分旧”的数据
+<ul>
+<li>备份的数据可能是一部分新值 + 一部分旧值，造成数据不一致。</li>
+</ul>
+</li>
+</ol>
+<h4><strong>(1) 脏数据情况</strong></h4>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>时间点</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>fork 进程，创建子进程</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>主进程修改 <code class="notranslate">key1</code></td>
+</tr>
+<tr>
+<td>T3</td>
+<td>子进程写入 <code class="notranslate">key1</code></td>
+</tr>
+<tr>
+<td><strong>结果</strong></td>
+<td><strong>RDB 存入的是已修改的数据，导致脏数据问题</strong></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h4><strong>(2) COW 解决方案</strong></h4>
+<ul>
+<li><strong>COW 让主进程修改数据时，先拷贝副本</strong>，保证 RDB 备份数据的一致性。</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://SaVeop.github.io">小黄酱酱的博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","SaVeop/SaVeop.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
