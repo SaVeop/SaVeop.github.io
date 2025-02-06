@@ -1,5 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Wed, 05 Feb 2025 17:49:42 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2025-2-5</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-2-5.html</link><description>### **学习笔记：2025-2-5**
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Thu, 06 Feb 2025 15:41:50 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>学习笔记：2025-2-6</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-2-6.html</link><description>### **学习笔记：2025-2-6**
+
+------
+
+### **一、深度分页查询的优化**
+
+#### 1. 问题描述
+
+查询如下 SQL 的效率差异：
+
+1. **慢查询**
+
+   ```sql
+   SELECT * FROM tb_sku LIMIT 9000000, 10;
+   ```
+
+   - 这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。</description><guid isPermaLink="true">https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-2-6.html</guid><pubDate>Thu, 06 Feb 2025 15:41:21 +0000</pubDate></item><item><title>学习笔记：2025-2-5</title><link>https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2025-2-5.html</link><description>### **学习笔记：2025-2-5**
 
 ------
 
