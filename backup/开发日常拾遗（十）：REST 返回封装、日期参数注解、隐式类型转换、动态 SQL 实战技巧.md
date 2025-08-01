@@ -1,0 +1,92 @@
+### **1. REST API 的返回数据**
+
+- REST API 返回数据可以形象地比喻为“快递包裹”：
+  - **快递内容**：你实际需要的业务数据（例如 JSON 格式的对象）。
+  - **快递盒子**：统一的响应结果封装，例如 `Result` 类（包含状态码、消息、具体数据等）。
+  - **物流过程**：Spring MVC 框架会负责将 Java 对象转化为 JSON，传输给客户端。
+
+------
+
+### **2. @RequestParam 和 @DateTimeFormat**
+
+- **@RequestParam 的用途**：
+  - 用于绑定 `query` 参数（URL 的参数）到方法的形参上。
+  - 对于普通类型（String、Integer），Spring MVC 默认支持绑定，无需额外注解。
+  - 对于复杂类型（如 `LocalDate`），需要结合 **@DateTimeFormat** 指定格式，否则会报转换失败的错误。
+- **为什么自定义消息转换器不起作用？**
+  - 消息转换器（如 JacksonObjectMapper）只处理 JSON 数据，而 URL 的 `query` 参数绑定是由 Spring 的参数解析器完成的，需单独配置。
+
+------
+
+### **3. 数字类型隐式转换**
+
+- **`1` 和 `1L` 的区别：**
+  - `1` 是 `int` 类型，`1L` 是 `long` 类型。
+  - 在需要 `long` 类型的场景下，`1` 可以隐式转换为 `long`，无需显式声明。
+- **显式声明的必要性：**
+  - 当值超出 `int` 范围（如 `2147483648L`），必须显式加 `L`。
+  - 避免歧义，例如在链式调用中明确指定返回类型。
+
+------
+
+### **4. StringUtils.join 的用途**
+
+- **StringUtils.join**
+- 方法：
+  - 用于将集合或数组的元素通过指定的分隔符连接为字符串。
+  - 示例：`StringUtils.join(localDates, ",")` 结果类似 `2024-12-11,2024-12-12,2024-12-13`。
+  - 常用于构造 SQL 查询或日志输出。
+
+------
+
+### **5. SQL 的 between and**
+
+- **between and 的边界值：**
+  - 包含边界值，`between A and B` 相当于 `A <= 值 <= B`。
+  - 在时间范围查询中，需注意 `00:00:00` 和 `23:59:59` 的精确性。
+
+------
+
+### **6. MyBatis 动态 SQL 与 Map 参数**
+
+- **动态 SQL 示例：**
+
+  ```xml
+  <if test="beginTime != null and endTime != null">
+      and order_time between #{beginTime} and #{endTime}
+  </if>
+  <if test="status != null">
+      and status = #{status}
+  </if>
+  ```
+
+- **Map 参数传值：**
+
+  - Map 可直接用于动态 SQL 中，键名对应占位符。
+  - 示例：`map.put("beginTime", "2024-12-11");`
+
+------
+
+### **7. < 和 > 的含义**
+
+- **HTML 实体：**
+  - `<` 是 “less than”（小于号 `<`）的缩写。
+  - `>` 是 “greater than”（大于号 `>`）的缩写。
+  - 避免与 HTML 标签冲突，需将特殊字符转义。
+
+------
+
+### **8. SQL 查询结果的 null 和 0**
+
+- **SUM 和 COUNT 的区别**：
+
+  - `SUM`：如果没有匹配数据，返回 `null`，因为没有值可加和。
+  - `COUNT`：如果没有匹配数据，返回 `0`，因为没有计数结果。
+
+- **解决办法**：
+
+  - 使用 `COALESCE`函数，指定默认值：
+
+    ```sql
+    SELECT COALESCE(SUM(amount), 0) FROM orders;
+    ```
