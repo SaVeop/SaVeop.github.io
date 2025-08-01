@@ -1,0 +1,95 @@
+#### 1. **事务配置及使用**
+
+- **事务注解的使用**：
+  使用 `@Transactional` 注解来标识需要进行事务管理的方法或类，通常是在 **service 层**。
+  - `@Transactional` 会在方法开始时开启事务，方法结束时提交事务，如果方法出现异常，则回滚事务。
+  - 事务可以用于数据库操作，以确保数据一致性。
+- **事务注解常见问题**：
+  - 必须确保 `@EnableTransactionManagement` 注解在启动类上启用事务管理器。
+  - 在 Spring Boot 中，使用 MySQL 时，事务管理需要与数据源正确配置，否则会出现事务无法生效或回滚失败的问题。
+- **验证是否自动配置**：
+  Spring Boot 会自动根据配置文件（`application.properties` 或 `application.yml`）进行数据库连接配置，并自动加载相关的事务管理配置。如果遇到事务管理相关的异常，可以通过启用 debug 模式来验证是否已经加载了事务管理器。
+
+------
+
+#### 2. **MyBatis 和 SQL 配置问题**
+
+- **MyBatis SQL 错误解析**：
+
+  - **错误：`Column 'status' in where clause is ambiguous`**：
+    这个错误提示 `status` 字段在 `WHERE` 子句中是模糊的，因为 `status` 字段可能出现在多个表中。在 SQL 查询中，应该明确指定表名或别名，如：`d.status` 或 `c.status`，来避免歧义。
+
+- **`insert` 语句与批量插入**：
+  在 MyBatis 中，批量插入需要使用 `foreach` 标签来遍历集合，生成对应的 SQL 语句。
+
+  - `insertBatch` 方法的映射问题：
+    如果你遇到类似错误 `Invalid bound statement (not found)`，说明在 MyBatis 的映射文件中没有定义对应的 `insertBatch` SQL 语句。需要确保在 XML 文件中为该方法添加正确的 `<insert>` 标签，并且 `namespace` 和方法名对应。
+
+- **MyBatis 配置错误：`Invalid bound statement`**：
+
+  - 如果方法在接口中定义但在 XML 中没有映射，或者映射的 SQL 语句 ID 与接口方法名不匹配，就会导致找不到对应的 SQL 映射。
+
+- **SQL 语句及动态查询**：
+
+  - 使用 `if` 标签实现动态查询，根据传入的条件动态拼接 SQL。例如，`name != null` 和 `categoryId != null` 这样的条件判断用于生成动态查询条件。
+
+  - 使用 
+
+    ```
+    <foreach>
+    ```
+
+     标签进行批量插入操作：
+
+    ```xml
+    <insert id="insertBatch">
+        INSERT INTO dish_flavor (dish_id, name, value)
+        VALUES
+        <foreach collection="list" item="dishFlavor" separator=",">
+            (#{dishFlavor.dishId}, #{dishFlavor.name}, #{dishFlavor.value})
+        </foreach>
+    </insert>
+    ```
+
+------
+
+#### 3. **分页查询与 `PageHelper` 使用**
+
+- **PageHelper 分页插件**：
+  使用 `PageHelper.startPage(page, pageSize)` 来启动分页，通常在查询方法中使用，之后 MyBatis 会根据当前页和页面大小来自动生成分页 SQL，分页查询结果会自动封装到 `Page` 对象中。
+- **分页与条件查询**： 你使用了 `DishPageQueryDTO` 作为查询条件封装对象，其中包括分页信息（`page` 和 `pageSize`）和查询条件（如 `name`、`categoryId`、`status`）。
+  - 根据这些条件，查询 SQL 会动态拼接条件。
+  - 分页结果通过 `results.getTotal()` 获取总数，通过 `results.getResult()` 获取查询结果。
+
+------
+
+#### 4. **调试与错误追踪**
+
+- 调试日志与 SQL 输出：
+
+  在开发过程中，利用日志输出（如 DEBUG）可以查看 SQL 执行过程以及参数传递的情况。
+
+  - 例如，调试信息显示了 SQL 查询准备过程和传递的参数，可以帮助定位问题。
+
+- **Druid 连接池警告**：
+  在数据库连接池（Druid）中，如果连接长时间未使用，可能会看到 `discard long time none received connection` 警告。这通常是连接空闲时间过长，超出最大空闲时间限制。可以通过调整连接池的相关配置来避免这个问题。
+
+------
+
+#### 5. **常见 MyBatis 错误与问题解决**
+
+- **问题：`Parameter 'dishId' not found`**：
+  错误信息表示 MyBatis 找不到参数 `dishId`。这种问题通常是因为在使用 `foreach` 时，参数名称没有正确匹配。确保 `foreach` 的 `collection` 和参数名称一致，通常需要在 SQL 映射语句中使用正确的参数名，或者在方法调用时使用 `@Param` 注解。
+- **解决方案**：
+  - 确保 `foreach` 使用了正确的参数和项名称。
+  - 使用 `@Param` 注解来确保方法参数名称在 SQL 中被正确引用。
+
+------
+
+#### 6. **关于 SQL 动态查询的最佳实践**
+
+- **`<where>` 和 `<if>` 标签的使用**：
+  在 MyBatis 中，可以通过 `<where>` 标签来自动加上 `WHERE` 关键字，并且通过 `<if>` 标签动态拼接查询条件。这可以避免 SQL 中不必要的 `AND` 关键字。
+- **SQL 查询优化**：
+  - 通过 `status != null` 等条件过滤不必要的数据，避免返回过多的无关数据。
+  - 对分页查询进行优化，确保查询速度和效率。
