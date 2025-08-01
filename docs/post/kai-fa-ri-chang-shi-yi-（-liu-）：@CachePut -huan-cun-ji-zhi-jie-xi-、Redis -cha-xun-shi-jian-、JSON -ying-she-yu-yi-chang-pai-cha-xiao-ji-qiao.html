@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    <script src='https://blog.meekdai.com/Gmeek/plugins/GmeekVercount.js'></script>
+    <link rel="icon" href="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="### 1. **Spring Cache 与 `@CachePut` 注解**
+
+- **`@CachePut` 注解** 用于方法执行后，将方法的返回值放入缓存中，而不是从缓存中获取数据。">
+<meta property="og:title" content="开发日常拾遗（六）：@CachePut 缓存机制解析、Redis 查询实践、JSON 映射与异常排查小技巧">
+<meta property="og:description" content="### 1. **Spring Cache 与 `@CachePut` 注解**
+
+- **`@CachePut` 注解** 用于方法执行后，将方法的返回值放入缓存中，而不是从缓存中获取数据。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-liu-%EF%BC%89%EF%BC%9A%40CachePut%20-huan-cun-ji-zhi-jie-xi-%E3%80%81Redis%20-cha-xun-shi-jian-%E3%80%81JSON%20-ying-she-yu-yi-chang-pai-cha-xiao-ji-qiao.html">
+<meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
+<title>开发日常拾遗（六）：@CachePut 缓存机制解析、Redis 查询实践、JSON 映射与异常排查小技巧</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">开发日常拾遗（六）：@CachePut 缓存机制解析、Redis 查询实践、JSON 映射与异常排查小技巧</h1>
+<div class="title-right">
+    <a href="https://SaVeop.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/SaVeop/SaVeop.github.io/issues/57" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3>1. <strong>Spring Cache 与 <code class="notranslate">@CachePut</code> 注解</strong></h3>
+<ul>
+<li><strong><code class="notranslate">@CachePut</code> 注解</strong> 用于方法执行后，将方法的返回值放入缓存中，而不是从缓存中获取数据。它可以确保缓存中的数据与方法返回值同步更新。</li>
+<li>关键点：<code class="notranslate">@CachePut</code> 会在方法执行完之后才执行，缓存的值是方法的返回值，而不是方法参数的值。例如，在保存 <code class="notranslate">User</code> 时，<code class="notranslate">@CachePut(cacheNames = "userCache", key = "#user.id")</code> 会根据执行完的方法返回值，将数据存储到缓存中。</li>
+<li>Spring 缓存的机制是方法执行完毕后将返回值放入缓存中，避免了直接在方法开始时就对缓存进行操作，从而确保缓存的数据是最新的。</li>
+</ul>
+<h3>2. <strong>Redis 操作与缓存配置</strong></h3>
+<ul>
+<li><strong>Spring Data Redis</strong>：Spring Data Redis 是 Spring 提供的对 Redis 数据库的支持，能够简化与 Redis 交互的过程。</li>
+<li>Redis 键查询使用：可以通过 <code class="notranslate">keys</code> 命令在 Redis 中查询指定模式的键，例如 <code class="notranslate">keys "prefix:*"</code> 查询所有以 <code class="notranslate">prefix:</code> 开头的键，但在生产环境中不推荐使用 <code class="notranslate">keys</code>，因为它可能导致性能问题。</li>
+<li>使用 Redis 存储数据时，Spring Data Redis 会自动处理数据的序列化和反序列化。Spring 提供了缓存注解，如 <code class="notranslate">@Cacheable</code>, <code class="notranslate">@CachePut</code>, <code class="notranslate">@CacheEvict</code> 等，这些注解可以简化 Redis 缓存的操作，自动处理缓存数据。</li>
+</ul>
+<h3>3. <strong>MyBatis 中的 <code class="notranslate">@CachePut</code> 和参数映射</strong></h3>
+<ul>
+<li><strong>MyBatis 映射文件中的 <code class="notranslate">parameterType</code> 和 <code class="notranslate">resultType</code></strong>：<code class="notranslate">parameterType</code> 用于指定方法参数的类型，<code class="notranslate">resultType</code> 用于指定查询结果的类型。在 XML 映射文件中，<code class="notranslate">parameterType="Dish"</code> 代表方法参数为 <code class="notranslate">Dish</code> 类型，<code class="notranslate">resultType="Dish"</code> 代表返回值为 <code class="notranslate">Dish</code> 类型。</li>
+<li><strong><code class="notranslate">@CachePut</code> 注解中的缓存键</strong>：在 <code class="notranslate">@CachePut</code> 中，<code class="notranslate">key = "#user.id"</code> 会将方法的返回值 <code class="notranslate">user</code> 的 <code class="notranslate">id</code> 作为缓存的键。这个缓存键在方法执行完后生成，确保缓存的数据是最新的。</li>
+</ul>
+<h3>4. <strong>"sub" 作为动词的含义</strong></h3>
+<p>在某些语境中，<strong>"sub"</strong> 作为动词时有 <strong>"删除"</strong> 或 <strong>"替代"</strong> 的意思。具体来说：</p>
+<ul>
+<li><strong>"substitute"</strong> 的缩写形式，“sub” 常常表示 <strong>替代</strong>，例如在命令行或脚本中，常用于替换文本或变量。</li>
+<li>在某些编程环境中，<strong>sub</strong> 用于表示将一个元素从列表或数组中移除，或者在特定情况下表示进行 <strong>删除操作</strong>。</li>
+</ul>
+<p>比如，在编程中，常见的 <code class="notranslate">sub</code> 操作是替换或删除的操作：</p>
+<ul>
+<li><strong>替换 (substitute)</strong>：用新的值替换旧的值。</li>
+<li><strong>删除 (sub)</strong>：某些框架或语言中使用 <code class="notranslate">sub</code> 来表示移除、删除操作。</li>
+</ul>
+<p><strong>举例</strong>：</p>
+<ul>
+<li>在 <strong>Perl</strong> 或 <strong>Ruby</strong> 中，<code class="notranslate">sub</code> 作为关键字用于定义函数或方法，但在某些上下文中，它也可以表示删除或替代的操作。</li>
+<li>在正则表达式中，<code class="notranslate">sub</code> 是替换操作的简写。</li>
+</ul>
+<p>​       这个词的具体意义取决于使用的上下文。在一般的自然语言中，<strong>"sub"</strong> 主要是 <strong>"替代"</strong> 或 <strong>"替换"</strong> 的意思，但在编程或命令行操作中，它有时也用作表示 <strong>删除</strong>。</p>
+<h3>5. <strong>JSON 解析错误：<code class="notranslate">HttpMessageNotReadableException</code></strong></h3>
+<ul>
+<li>出现 <strong><code class="notranslate">HttpMessageNotReadableException</code></strong> 错误时，通常是因为前端发送的 JSON 数据格式错误，Spring 无法解析请求体中的数据。常见原因包括 JSON 格式错误（如缺少逗号、引号不匹配等）或 <code class="notranslate">Content-Type</code> 错误。</li>
+<li>解决方法：
+<ol>
+<li>确保前端发送的 JSON 数据格式正确。</li>
+<li>使用工具（如 JSONLint）验证 JSON 格式。</li>
+<li>检查请求头中的 <code class="notranslate">Content-Type</code> 是否正确设置为 <code class="notranslate">application/json</code>。</li>
+<li>确保请求体中的 JSON 数据完整，没有丢失。</li>
+</ol>
+</li>
+</ul>
+<h3>6. <strong>Spring 的 <code class="notranslate">@RequestBody</code> 自动映射</strong></h3>
+<ul>
+<li><strong><code class="notranslate">@RequestBody</code> 注解</strong> 使 Spring 自动将 HTTP 请求体中的 JSON 数据转换为 Java 实体类对象。Spring 使用 <strong><code class="notranslate">HttpMessageConverter</code></strong>（通常是 Jackson）进行数据的序列化和反序列化。</li>
+<li>例如，前端发送 JSON 数据，Spring 会自动将其映射到对应的实体类参数中，方法的参数就变成了请求体中的数据。</li>
+<li>关键点：
+<ol>
+<li><code class="notranslate">@RequestBody</code> 自动将 JSON 数据绑定到方法参数。</li>
+<li>前端需要正确设置 <code class="notranslate">Content-Type: application/json</code>。</li>
+<li>请求体中的字段名需要与 Java 类中的属性匹配。</li>
+</ol>
+</li>
+</ul>
+<h3>7. <strong>Redis 键查询与 <code class="notranslate">keys</code> 命令的注意事项</strong></h3>
+<ul>
+<li>Redis 提供了 <code class="notranslate">keys</code> 命令用于匹配指定模式的所有键，但在生产环境中不推荐使用 <code class="notranslate">keys</code> 命令，因为它会遍历整个 Redis 数据库，可能对性能造成影响。</li>
+<li>推荐使用 Redis 的 <strong><code class="notranslate">SCAN</code></strong> 命令，它是一个增量式的键扫描方法，不会对 Redis 服务器的性能造成严重影响，适用于大规模的数据查询。</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://SaVeop.github.io">小黄酱酱的博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","SaVeop/SaVeop.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
