@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 06:40:48 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（四十六）：锁重入原理与意义、Redis PSYNC 增量同步、BGSAVE 机制、上下文切换与竞争条件、MySQL主键查询与索引解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-liu-%EF%BC%89%EF%BC%9A-suo-zhong-ru-yuan-li-yu-yi-yi-%E3%80%81Redis%20PSYNC%20-zeng-liang-tong-bu-%E3%80%81BGSAVE%20-ji-zhi-%E3%80%81-shang-xia-wen-qie-huan-yu-jing-zheng-tiao-jian-%E3%80%81MySQL-zhu-jian-cha-xun-yu-suo-yin-jie-xi.html</link><description>### **1. 什么是锁的重入，为什么要锁重入？**
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 06:43:27 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（四十七）：深度分页优化、联合索引与回表、Join 优化、MySQL 与 Redis 主从复制、事务日志解析、IO 分类与 InnoDB 内部元信息</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-qi-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-you-hua-%E3%80%81-lian-he-suo-yin-yu-hui-biao-%E3%80%81Join%20-you-hua-%E3%80%81MySQL%20-yu-%20Redis%20-zhu-cong-fu-zhi-%E3%80%81-shi-wu-ri-zhi-jie-xi-%E3%80%81IO%20-fen-lei-yu-%20InnoDB%20-nei-bu-yuan-xin-xi.html</link><description>### **一、深度分页查询的优化**
+
+#### 1. 问题描述
+
+查询如下 SQL 的效率差异：
+
+1. **慢查询**
+
+   ```sql
+   SELECT * FROM tb_sku LIMIT 9000000, 10;
+   ```
+
+   - 这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-qi-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-you-hua-%E3%80%81-lian-he-suo-yin-yu-hui-biao-%E3%80%81Join%20-you-hua-%E3%80%81MySQL%20-yu-%20Redis%20-zhu-cong-fu-zhi-%E3%80%81-shi-wu-ri-zhi-jie-xi-%E3%80%81IO%20-fen-lei-yu-%20InnoDB%20-nei-bu-yuan-xin-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:42:59 +0000</pubDate></item><item><title>开发日常拾遗（四十六）：锁重入原理与意义、Redis PSYNC 增量同步、BGSAVE 机制、上下文切换与竞争条件、MySQL主键查询与索引解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-liu-%EF%BC%89%EF%BC%9A-suo-zhong-ru-yuan-li-yu-yi-yi-%E3%80%81Redis%20PSYNC%20-zeng-liang-tong-bu-%E3%80%81BGSAVE%20-ji-zhi-%E3%80%81-shang-xia-wen-qie-huan-yu-jing-zheng-tiao-jian-%E3%80%81MySQL-zhu-jian-cha-xun-yu-suo-yin-jie-xi.html</link><description>### **1. 什么是锁的重入，为什么要锁重入？**
 
 #### **锁重入的含义**
 
