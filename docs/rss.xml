@@ -1,5 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 06:30:32 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（三十九）：跨域问题原因与解决方案、Nginx跨域配置、SQL WITH RECURSIVE语法、递归SQL写法区别、Java Stream API toMap示例解析、RPC概念与工作流程</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-jiu-%EF%BC%89%EF%BC%9A-kua-yu-wen-ti-yuan-yin-yu-jie-jue-fang-an-%E3%80%81Nginx-kua-yu-pei-zhi-%E3%80%81SQL%20WITH%20RECURSIVE-yu-fa-%E3%80%81-di-gui-SQL-xie-fa-qu-bie-%E3%80%81Java%20Stream%20API%20toMap-shi-li-jie-xi-%E3%80%81RPC-gai-nian-yu-gong-zuo-liu-cheng.html</link><description>### **1. 为什么前端在浏览器上渲染，不通过前端直接访问后端会有跨域问题？**
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 06:32:01 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（四十）：MyBatis Mapper映射加载异常、Collectors.toMap与map区别、Java流引用传递机制详解、树结构组装中引用共享原理解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-%EF%BC%89%EF%BC%9AMyBatis%20Mapper-ying-she-jia-zai-yi-chang-%E3%80%81Collectors.toMap-yu-map-qu-bie-%E3%80%81Java-liu-yin-yong-chuan-di-ji-zhi-xiang-jie-%E3%80%81-shu-jie-gou-zu-zhuang-zhong-yin-yong-gong-xiang-yuan-li-jie-xi.html</link><description>### **1. 测试运行时，Mapper 找不到对应的 SQL 映射问题**
+
+##### **问题描述：**
+
+运行以下测试时，抛出了 `NullPointerException` 和 `Invalid bound statement` 错误：
+
+```java
+@Test
+void testCourseCategory() {
+    List&lt;CourseCategoryDto&gt; courseCategoryDtos = courseCategoryMapper.selectTreeNodes('1');
+    System.out.println(courseCategoryDtos);
+}
+```
+
+**报错信息：**
+
+1. **`NullPointerException`**
+   发生在 `courseCategoryMapper.selectTreeNodes('1')` 处，表示 `courseCategoryMapper` 为 `null`。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-%EF%BC%89%EF%BC%9AMyBatis%20Mapper-ying-she-jia-zai-yi-chang-%E3%80%81Collectors.toMap-yu-map-qu-bie-%E3%80%81Java-liu-yin-yong-chuan-di-ji-zhi-xiang-jie-%E3%80%81-shu-jie-gou-zu-zhuang-zhong-yin-yong-gong-xiang-yuan-li-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:31:34 +0000</pubDate></item><item><title>开发日常拾遗（三十九）：跨域问题原因与解决方案、Nginx跨域配置、SQL WITH RECURSIVE语法、递归SQL写法区别、Java Stream API toMap示例解析、RPC概念与工作流程</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-jiu-%EF%BC%89%EF%BC%9A-kua-yu-wen-ti-yuan-yin-yu-jie-jue-fang-an-%E3%80%81Nginx-kua-yu-pei-zhi-%E3%80%81SQL%20WITH%20RECURSIVE-yu-fa-%E3%80%81-di-gui-SQL-xie-fa-qu-bie-%E3%80%81Java%20Stream%20API%20toMap-shi-li-jie-xi-%E3%80%81RPC-gai-nian-yu-gong-zuo-liu-cheng.html</link><description>### **1. 为什么前端在浏览器上渲染，不通过前端直接访问后端会有跨域问题？**
 
 **跨域问题产生的原因：**
 
