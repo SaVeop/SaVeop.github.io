@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    <script src='https://blog.meekdai.com/Gmeek/plugins/GmeekVercount.js'></script>
+    <link rel="icon" href="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="### 1. 兜底方案
+
+尽管通过多种机制提高了消息的可靠性，仍无法保证MQ消息100%的成功传递。">
+<meta property="og:title" content="开发日常拾遗（三十）：MQ消息兜底方案与延迟消息原理及RabbitMQ死信交换机与TTL实现">
+<meta property="og:description" content="### 1. 兜底方案
+
+尽管通过多种机制提高了消息的可靠性，仍无法保证MQ消息100%的成功传递。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-%EF%BC%89%EF%BC%9AMQ-xiao-xi-dou-di-fang-an-yu-yan-chi-xiao-xi-yuan-li-ji-RabbitMQ-si-xin-jiao-huan-ji-yu-TTL-shi-xian.html">
+<meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
+<title>开发日常拾遗（三十）：MQ消息兜底方案与延迟消息原理及RabbitMQ死信交换机与TTL实现</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">开发日常拾遗（三十）：MQ消息兜底方案与延迟消息原理及RabbitMQ死信交换机与TTL实现</h1>
+<div class="title-right">
+    <a href="https://SaVeop.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/SaVeop/SaVeop.github.io/issues/81" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h3>1. 兜底方案</h3>
+<p>尽管通过多种机制提高了消息的可靠性，仍无法保证MQ消息100%的成功传递。因此，交易服务需要有一个<strong>兜底方案</strong>来确保订单的支付状态一致性，即使MQ通知失败。</p>
+<h4>1.1. 方案思路</h4>
+<p>由于MQ通知可能会失败，交易服务可以<strong>主动查询支付状态</strong>，确保即便MQ通知丢失，支付状态仍能得到正确更新。</p>
+<h4>1.2. 方案流程</h4>
+<ol>
+<li><strong>支付服务发送MQ消息</strong>：支付服务在用户支付成功后，通过MQ通知交易服务更新订单状态。</li>
+<li><strong>MQ消息可靠性</strong>：为了确保MQ消息的可靠性，采用生产者确认、消费者确认、以及消费者失败重试等策略。</li>
+<li><strong>交易服务主动查询</strong>：当MQ通知失败时，交易服务主动定期查询支付状态。</li>
+<li><strong>定时任务</strong>：由于无法确定用户支付的确切时间，采用定时任务（例如每隔20秒查询一次）来确认订单是否已支付，并更新订单状态。</li>
+</ol>
+<h4>1.3. 关键点</h4>
+<ul>
+<li><strong>定时任务</strong>：解决查询时机不准确的问题，确保订单支付状态的一致性。</li>
+<li><strong>MQ通知与查询结合</strong>：结合MQ消息通知和定时查询，确保支付状态最终一致。</li>
+</ul>
+<hr>
+<h3>2. 延迟消息</h3>
+<p>在电商支付业务中，尤其是库存有限的商品，需要<strong>避免用户长时间占用库存资源</strong>。如果用户下单后长时间未付款，可能导致其他用户无法购买该商品。因此，需要在用户下单后的规定时间内检查支付状态，并取消未支付订单，释放库存资源。</p>
+<h4>2.1. 延迟任务需求</h4>
+<p>为确保在一定时间后检查支付状态，通常使用<strong>延迟任务</strong>。最简单的方式是通过<strong>MQ的延迟消息</strong>。</p>
+<h4>2.2. 延迟消息实现方式</h4>
+<p>在RabbitMQ中，可以通过以下两种方式实现延迟消息：</p>
+<ol>
+<li><strong>死信交换机（DLX） + TTL</strong></li>
+<li><strong>延迟消息插件</strong></li>
+</ol>
+<h4>2.3. 死信交换机与TTL</h4>
+<ol>
+<li><strong>死信交换机</strong>：
+<ul>
+<li>死信是指满足以下条件的消息：
+<ul>
+<li>消费者拒绝消息，且<code class="notranslate">requeue=false</code>。</li>
+<li>消息超时，未被消费。</li>
+<li>队列满，无法投递消息。</li>
+</ul>
+</li>
+<li>死信消息会投递到指定的死信交换机（Dead Letter Exchange），然后根据绑定的路由规则，转发到另一个队列。</li>
+</ul>
+</li>
+<li><strong>TTL（消息有效期）</strong>：
+<ul>
+<li>通过设置消息TTL（生存时间），当消息的TTL到期时，消息变为死信，投递到死信交换机，再根据路由规则转发到目标队列，最终由消费者处理，从而实现延迟消费。</li>
+</ul>
+</li>
+</ol>
+<h4>2.4. 延迟消息的实现</h4>
+<ol>
+<li>发送消息到<code class="notranslate">ttl.fanout</code>交换机，并设置TTL（如5000毫秒）。</li>
+<li>消息进入<code class="notranslate">ttl.queue</code>队列，由于没有消费者，消息超时后变为死信。</li>
+<li>死信投递到死信交换机<code class="notranslate">hmall.direct</code>，并根据之前的<code class="notranslate">RoutingKey</code>（例如<code class="notranslate">blue</code>）路由到<code class="notranslate">direct.queue1</code>。</li>
+<li>如果此时有消费者与<code class="notranslate">direct.queue1</code>队列绑定，则该消费者可以消费该延迟消息。</li>
+</ol>
+<h4>2.5. 死信交换机与延迟消息的总结</h4>
+<ul>
+<li><strong>消息TTL</strong>是通过追溯方式实现的，当消息的TTL到期后并不会立即被移除，而是在消息处于队列头时才会被处理。</li>
+<li>当队列中的消息堆积较多时，过期消息可能不会按时被处理，TTL设置可能存在不准确性。</li>
+</ul></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://SaVeop.github.io">小黄酱酱的博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","SaVeop/SaVeop.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
