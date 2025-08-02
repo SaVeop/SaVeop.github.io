@@ -10,27 +10,37 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="### **学习笔记：2024-12-18**
+<meta name="description" content="### **一、深度分页查询的优化**
 
-------
+#### 1. 问题描述
 
-### **1. REST API 的返回数据**
+查询如下 SQL 的效率差异：
 
-- REST API 返回数据可以形象地比喻为“快递包裹”：
-  - **快递内容**：你实际需要的业务数据（例如 JSON 格式的对象）。">
-<meta property="og:title" content="学习笔记：2024-12-18">
-<meta property="og:description" content="### **学习笔记：2024-12-18**
+1. **慢查询**
 
-------
+   ```sql
+   SELECT * FROM tb_sku LIMIT 9000000, 10;
+   ```
 
-### **1. REST API 的返回数据**
+   - 这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。">
+<meta property="og:title" content="开发日常拾遗（四十七）：深度分页优化、联合索引与回表、Join 优化、MySQL 与 Redis 主从复制、事务日志解析、IO 分类与 InnoDB 内部元信息解析">
+<meta property="og:description" content="### **一、深度分页查询的优化**
 
-- REST API 返回数据可以形象地比喻为“快递包裹”：
-  - **快递内容**：你实际需要的业务数据（例如 JSON 格式的对象）。">
+#### 1. 问题描述
+
+查询如下 SQL 的效率差异：
+
+1. **慢查询**
+
+   ```sql
+   SELECT * FROM tb_sku LIMIT 9000000, 10;
+   ```
+
+   - 这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://SaVeop.github.io/post/xue-xi-bi-ji-%EF%BC%9A2024-12-18.html">
+<meta property="og:url" content="https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-qi-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-you-hua-%E3%80%81-lian-he-suo-yin-yu-hui-biao-%E3%80%81Join%20-you-hua-%E3%80%81MySQL%20-yu-%20Redis%20-zhu-cong-fu-zhi-%E3%80%81-shi-wu-ri-zhi-jie-xi-%E3%80%81IO%20-fen-lei-yu-%20InnoDB%20-nei-bu-yuan-xin-xi-jie-xi.html">
 <meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
-<title>学习笔记：2024-12-18</title>
+<title>开发日常拾遗（四十七）：深度分页优化、联合索引与回表、Join 优化、MySQL 与 Redis 主从复制、事务日志解析、IO 分类与 InnoDB 内部元信息解析</title>
 <link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
@@ -73,7 +83,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <body>
     <div id="header">
-<h1 class="postTitle">学习笔记：2024-12-18</h1>
+<h1 class="postTitle">开发日常拾遗（四十七）：深度分页优化、联合索引与回表、Join 优化、MySQL 与 Redis 主从复制、事务日志解析、IO 分类与 InnoDB 内部元信息解析</h1>
 <div class="title-right">
     <a href="https://SaVeop.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
         <svg class="octicon" width="16" height="16">
@@ -81,7 +91,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
     
-    <a href="https://github.com/SaVeop/SaVeop.github.io/issues/12" target="_blank" class="btn btn-invisible circle" title="Issue">
+    <a href="https://github.com/SaVeop/SaVeop.github.io/issues/98" target="_blank" class="btn btn-invisible circle" title="Issue">
         <svg class="octicon" width="16" height="16">
             <path id="pathIssue" fill-rule="evenodd"></path>
         </svg>
@@ -97,122 +107,164 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h3><strong>学习笔记：2024-12-18</strong></h3>
-<hr>
-<h3><strong>1. REST API 的返回数据</strong></h3>
-<ul>
-<li>REST API 返回数据可以形象地比喻为“快递包裹”：
-<ul>
-<li><strong>快递内容</strong>：你实际需要的业务数据（例如 JSON 格式的对象）。</li>
-<li><strong>快递盒子</strong>：统一的响应结果封装，例如 <code class="notranslate">Result</code> 类（包含状态码、消息、具体数据等）。</li>
-<li><strong>物流过程</strong>：Spring MVC 框架会负责将 Java 对象转化为 JSON，传输给客户端。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>2. <a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/RequestParam/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/RequestParam">@RequestParam</a> 和 @DateTimeFormat</strong></h3>
-<ul>
-<li><strong><a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/RequestParam/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/RequestParam">@RequestParam</a> 的用途</strong>：
-<ul>
-<li>用于绑定 <code class="notranslate">query</code> 参数（URL 的参数）到方法的形参上。</li>
-<li>对于普通类型（String、Integer），Spring MVC 默认支持绑定，无需额外注解。</li>
-<li>对于复杂类型（如 <code class="notranslate">LocalDate</code>），需要结合 <strong>@DateTimeFormat</strong> 指定格式，否则会报转换失败的错误。</li>
-</ul>
-</li>
-<li><strong>为什么自定义消息转换器不起作用？</strong>
-<ul>
-<li>消息转换器（如 JacksonObjectMapper）只处理 JSON 数据，而 URL 的 <code class="notranslate">query</code> 参数绑定是由 Spring 的参数解析器完成的，需单独配置。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>3. 数字类型隐式转换</strong></h3>
-<ul>
-<li><strong><code class="notranslate">1</code> 和 <code class="notranslate">1L</code> 的区别：</strong>
-<ul>
-<li><code class="notranslate">1</code> 是 <code class="notranslate">int</code> 类型，<code class="notranslate">1L</code> 是 <code class="notranslate">long</code> 类型。</li>
-<li>在需要 <code class="notranslate">long</code> 类型的场景下，<code class="notranslate">1</code> 可以隐式转换为 <code class="notranslate">long</code>，无需显式声明。</li>
-</ul>
-</li>
-<li><strong>显式声明的必要性：</strong>
-<ul>
-<li>当值超出 <code class="notranslate">int</code> 范围（如 <code class="notranslate">2147483648L</code>），必须显式加 <code class="notranslate">L</code>。</li>
-<li>避免歧义，例如在链式调用中明确指定返回类型。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>4. StringUtils.join 的用途</strong></h3>
-<ul>
-<li><strong>StringUtils.join</strong></li>
-<li>方法：
-<ul>
-<li>用于将集合或数组的元素通过指定的分隔符连接为字符串。</li>
-<li>示例：<code class="notranslate">StringUtils.join(localDates, ",")</code> 结果类似 <code class="notranslate">2024-12-11,2024-12-12,2024-12-13</code>。</li>
-<li>常用于构造 SQL 查询或日志输出。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>5. SQL 的 between and</strong></h3>
-<ul>
-<li><strong>between and 的边界值：</strong>
-<ul>
-<li>包含边界值，<code class="notranslate">between A and B</code> 相当于 <code class="notranslate">A &lt;= 值 &lt;= B</code>。</li>
-<li>在时间范围查询中，需注意 <code class="notranslate">00:00:00</code> 和 <code class="notranslate">23:59:59</code> 的精确性。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>6. MyBatis 动态 SQL 与 Map 参数</strong></h3>
-<ul>
+<div class="markdown-body" id="postBody"><h3><strong>一、深度分页查询的优化</strong></h3>
+<h4>1. 问题描述</h4>
+<p>查询如下 SQL 的效率差异：</p>
+<ol>
 <li>
-<p><strong>动态 SQL 示例：</strong></p>
-<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">if</span> <span class="pl-e">test</span>=<span class="pl-s"><span class="pl-pds">"</span>beginTime != null and endTime != null<span class="pl-pds">"</span></span>&gt;
-    and order_time between #{beginTime} and #{endTime}
-&lt;/<span class="pl-ent">if</span>&gt;
-&lt;<span class="pl-ent">if</span> <span class="pl-e">test</span>=<span class="pl-s"><span class="pl-pds">"</span>status != null<span class="pl-pds">"</span></span>&gt;
-    and status = #{status}
-&lt;/<span class="pl-ent">if</span>&gt;</pre></div>
-</li>
-<li>
-<p><strong>Map 参数传值：</strong></p>
+<p><strong>慢查询</strong></p>
+<div class="highlight highlight-source-sql"><pre class="notranslate"><span class="pl-k">SELECT</span> <span class="pl-k">*</span> <span class="pl-k">FROM</span> tb_sku <span class="pl-k">LIMIT</span> <span class="pl-c1">9000000</span>, <span class="pl-c1">10</span>;</pre></div>
 <ul>
-<li>Map 可直接用于动态 SQL 中，键名对应占位符。</li>
-<li>示例：<code class="notranslate">map.put("beginTime", "2024-12-11");</code></li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>7. &lt; 和 &gt; 的含义</strong></h3>
-<ul>
-<li><strong>HTML 实体：</strong>
-<ul>
-<li><code class="notranslate">&lt;</code> 是 “less than”（小于号 <code class="notranslate">&lt;</code>）的缩写。</li>
-<li><code class="notranslate">&gt;</code> 是 “greater than”（大于号 <code class="notranslate">&gt;</code>）的缩写。</li>
-<li>避免与 HTML 标签冲突，需将特殊字符转义。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3><strong>8. SQL 查询结果的 null 和 0</strong></h3>
-<ul>
-<li>
-<p><strong>SUM 和 COUNT 的区别</strong>：</p>
-<ul>
-<li><code class="notranslate">SUM</code>：如果没有匹配数据，返回 <code class="notranslate">null</code>，因为没有值可加和。</li>
-<li><code class="notranslate">COUNT</code>：如果没有匹配数据，返回 <code class="notranslate">0</code>，因为没有计数结果。</li>
+<li>这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。</li>
 </ul>
 </li>
 <li>
-<p><strong>解决办法</strong>：</p>
+<p><strong>优化后的查询</strong></p>
+<div class="highlight highlight-source-sql"><pre class="notranslate"><span class="pl-k">SELECT</span> <span class="pl-k">*</span> <span class="pl-k">FROM</span> tb_sku t, 
+(<span class="pl-k">SELECT</span> id <span class="pl-k">FROM</span> tb_sku <span class="pl-k">ORDER BY</span> id <span class="pl-k">LIMIT</span> <span class="pl-c1">9000000</span>, <span class="pl-c1">10</span>) a 
+<span class="pl-k">WHERE</span> <span class="pl-c1">t</span>.<span class="pl-c1">id</span> <span class="pl-k">=</span> <span class="pl-c1">a</span>.<span class="pl-c1">id</span>;</pre></div>
 <ul>
-<li>
-<p>使用 <code class="notranslate">COALESCE</code>函数，指定默认值：</p>
-<div class="highlight highlight-source-sql"><pre class="notranslate"><span class="pl-k">SELECT</span> COALESCE(<span class="pl-c1">SUM</span>(amount), <span class="pl-c1">0</span>) <span class="pl-k">FROM</span> orders;</pre></div>
-</li>
+<li>优化后的 SQL 通过子查询，先快速定位第 9,000,000 条数据的 <code class="notranslate">id</code>，再用 <code class="notranslate">id</code> 进行关联，减少了扫描的数据量。</li>
 </ul>
 </li>
+</ol>
+<h4>2. 深入分析</h4>
+<ul>
+<li>子查询 <code class="notranslate">(SELECT id FROM tb_sku ORDER BY id LIMIT 9000000, 10)</code> <strong>仅扫描 id 列</strong>，数据量小，速度快。</li>
+<li>通过主键 <code class="notranslate">id</code> 关联获取完整数据，避免了大范围的数据丢弃。</li>
+</ul>
+<h4>3. 笛卡尔积解释</h4>
+<ul>
+<li>表面上看，这种 <code class="notranslate">JOIN</code> 操作有可能生成笛卡尔积，但由于 <code class="notranslate">id</code> 是唯一的，最终的结果是精确匹配，不会生成多余的组合。</li>
+<li>SQL 优化器会识别这种子查询模式，执行效率较高。</li>
+</ul>
+<hr>
+<h3><strong>二、索引优化</strong></h3>
+<h4>1. 什么是联合索引</h4>
+<ul>
+<li>联合索引（Composite Index）：在一个索引中包含多个列，按照<strong>多列的组合值</strong>来建立索引。</li>
+<li>例如，创建 <code class="notranslate">(col1, col2, col3)</code> 的联合索引，索引中的数据按照 <code class="notranslate">col1</code> → <code class="notranslate">col2</code> → <code class="notranslate">col3</code> 的顺序排列。</li>
+</ul>
+<p><strong>B+树结构中的区别</strong></p>
+<ul>
+<li><strong>单一索引</strong>：每个索引仅对应一列。B+树的每个节点按单列的值进行排序。</li>
+<li><strong>联合索引</strong>：B+树的排序依据是多列组合的值，首先按第 1 列排序，如果第 1 列相同，则按第 2 列排序，依此类推。</li>
+</ul>
+<p><strong>最左前缀原则</strong></p>
+<ul>
+<li>联合索引遵循 <code class="notranslate">最左前缀法则</code>：
+<ul>
+<li>查询条件必须包含索引的最左边开始的连续列，才能命中索引。</li>
+<li>例如，对于 <code class="notranslate">(col1, col2, col3)</code> 的联合索引，<code class="notranslate">WHERE col1 = ? AND col2 = ?</code> 可以使用索引，而 <code class="notranslate">WHERE col2 = ?</code> 无法命中索引。</li>
+</ul>
+</li>
+</ul>
+<h4>2. 回表查询</h4>
+<p><strong>回表查询</strong>是指索引查询后，还需要回到<strong>主表</strong>获取完整数据。</p>
+<ul>
+<li>如果索引无法直接提供查询所需的所有列，则需要回表。</li>
+<li><strong>覆盖索引</strong>（Covering Index）可以避免回表，提高查询效率。</li>
+</ul>
+<hr>
+<h3><strong>三、Join 优化</strong></h3>
+<h4>1. Join 的执行原理</h4>
+<ul>
+<li><code class="notranslate">Inner Join</code> 和 <code class="notranslate">Left Join</code> 都是基于两张表进行匹配操作，本质上是一种笛卡尔积。
+<ul>
+<li><strong>Inner Join</strong>：只返回匹配的结果。</li>
+<li><strong>Left Join</strong>：返回左表的所有记录，如果右表无匹配记录，填充为 NULL。</li>
+</ul>
+</li>
+</ul>
+<h4>2. 小表驱动大表</h4>
+<ul>
+<li>在 Join 操作中，小表放在前面（驱动表），大表放在后面，可以更快定位和过滤大表中的数据，减少扫描范围。
+<ul>
+<li><strong>驱动表</strong>：作为外层循环的表。</li>
+<li><strong>被驱动表</strong>：内层循环匹配的表。</li>
+</ul>
+</li>
+</ul>
+<h4>3. SQL 优化原则</h4>
+<ul>
+<li><strong>尽量使用 Inner Join</strong>，因为优化器能自动调整执行顺序，提高性能。</li>
+<li><strong>减少 Join 表的数量</strong>，防止生成过多的中间结果。</li>
+</ul>
+<hr>
+<h3><strong>四、MySQL 与 Redis 主从复制、读写分离</strong></h3>
+<h4>1. MySQL 的主从复制与读写分离</h4>
+<ul>
+<li><strong>主从复制</strong>：主库写入数据后，通过 <code class="notranslate">binlog</code> 传递给从库，从库执行相同的操作，保持数据一致。</li>
+<li><strong>读写分离</strong>：将读操作分配给从库，写操作分配给主库，提升并发能力。</li>
+</ul>
+<h4>2. Redis 的主从复制与读写分离</h4>
+<ul>
+<li><strong>主从复制</strong>：主节点的数据会自动同步到从节点。</li>
+<li><strong>读写分离</strong>：通常用于高可用架构，主节点处理写操作，从节点处理读操作。</li>
+<li>区别：
+<ul>
+<li>Redis 是内存数据库，复制速度快，延迟较低。</li>
+<li>MySQL 主要是磁盘存储，复制和同步会受到 I/O 性能的限制。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3><strong>五、事务日志（redo log 和 undo log）</strong></h3>
+<h4>1. redo log（重做日志）</h4>
+<ul>
+<li>记录 <strong>物理层面的修改</strong>（如把某页数据从 A 修改到 B）。</li>
+<li>用于恢复<strong>已提交事务</strong>的数据，保证崩溃后数据一致性。</li>
+<li><strong>顺序写入磁盘，性能高</strong>。</li>
+</ul>
+<h4>2. undo log（回滚日志）</h4>
+<ul>
+<li>记录 <strong>逻辑层面的修改</strong>，用于在事务失败时回滚数据，恢复到之前的状态。</li>
+<li><strong>支持 MVCC（多版本并发控制）</strong>，帮助生成一致性视图，避免脏读、幻读等现象。</li>
+</ul>
+<h4>3. 日志存储位置</h4>
+<ul>
+<li>redo log 和 undo log 都存储在 MySQL 的物理文件中，可以通过日志文件查看。</li>
+</ul>
+<hr>
+<h3><strong>六、IO 操作</strong></h3>
+<h4>1. 磁盘 IO（Disk I/O）</h4>
+<ul>
+<li>数据在内存和磁盘之间进行传输。</li>
+<li>速度较慢，特别是机械硬盘。</li>
+<li>例子：
+<ul>
+<li>从磁盘读取大文件。</li>
+<li>数据库写入磁盘文件。</li>
+</ul>
+</li>
+</ul>
+<h4>2. 网络 IO（Network I/O）</h4>
+<ul>
+<li>数据在计算机与远程服务器之间传输。</li>
+<li>速度受限于网络带宽和延迟。</li>
+<li>例子：
+<ul>
+<li>通过 HTTP 请求获取网页内容。</li>
+<li>远程访问数据库。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3><strong>七、DB_TRX_ID、DB_ROLL_PTR、DB_ROW_ID 解释</strong></h3>
+<h4>1. <strong>DB_TRX_ID</strong> （Database Transaction ID）</h4>
+<ul>
+<li><strong>事务 ID</strong>，表示每条记录由哪个事务插入或修改。</li>
+<li><strong>用途</strong>：用于 MVCC 实现一致性读，避免读取未提交数据。</li>
+</ul>
+<h4>2. <strong>DB_ROLL_PTR</strong> （Database Rollback Pointer）</h4>
+<ul>
+<li><strong>回滚指针</strong>，指向 undo log，用于回滚和一致性读。</li>
+<li><strong>用途</strong>：实现事务回滚或生成数据的历史版本。</li>
+</ul>
+<h4>3. <strong>DB_ROW_ID</strong> （Database Row ID）</h4>
+<ul>
+<li><strong>行 ID</strong>，用于标识表中的唯一行（在没有主键时自动生成）。</li>
+<li><strong>用途</strong>：作为聚簇索引的主键。</li>
 </ul></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
