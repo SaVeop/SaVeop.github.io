@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 07:32:49 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（四十八）：Java异常与权限，Spring Bean与Aware，BeanDefinition与事务，代理AOP，BLOB/CLOB，InnoDB版本链解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-ba-%EF%BC%89%EF%BC%9AJava-yi-chang-yu-quan-xian-%EF%BC%8CSpring%20Bean-yu-Aware%EF%BC%8CBeanDefinition-yu-shi-wu-%EF%BC%8C-dai-li-AOP%EF%BC%8CBLOB-CLOB%EF%BC%8CInnoDB-ban-ben-lian-jie-xi.html</link><description>### **1. Java 中的异常分类**
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Sat, 02 Aug 2025 07:34:11 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（四十八）：Java异常与权限，Spring Bean与Aware，BeanDefinition与事务，代理AOP，BLOB/CLOB，InnoDB版本链解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-ba-%EF%BC%89%EF%BC%9AJava-yi-chang-yu-quan-xian-%EF%BC%8CSpring%20Bean-yu-Aware%EF%BC%8CBeanDefinition-yu-shi-wu-%EF%BC%8C-dai-li-AOP%EF%BC%8CBLOB-CLOB%EF%BC%8CInnoDB-ban-ben-lian-jie-xi.html</link><description>### **1. Java 中的异常分类**
 
 Java 中的异常分为以下三类：
 
@@ -158,7 +158,25 @@ java.lang.IllegalStateException: Error processing condition on org.springframewo
    docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d --restart always mysql:latest
    ```
 
-   - `--restart always`：表示无论容器是否正常退出，都自动重启。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html</guid><pubDate>Sat, 02 Aug 2025 06:02:45 +0000</pubDate></item><item><title>开发日常拾遗（二十三）：Spring Cloud 与 Nacos 服务映射解析及 @FeignClient 注解原理透析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-san-%EF%BC%89%EF%BC%9ASpring%20Cloud%20-yu-%20Nacos%20-fu-wu-ying-she-jie-xi-ji-%20%40FeignClient%20-zhu-jie-yuan-li-tou-xi.html</link><description>### 1. Spring Cloud 与 Nacos 配置、服务映射问题分析
+   - `--restart always`：表示无论容器是否正常退出，都自动重启。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html</guid><pubDate>Sat, 02 Aug 2025 06:02:45 +0000</pubDate></item><item><title>开发日常拾遗（二十四）：Spring Boot端口，RestTemplate，IDEA类层次，AntPath，Bean排查，Filter与Interceptor，WebFlux，spring.factories，MVC判断，依赖，starter-web</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-si-%EF%BC%89%EF%BC%9ASpring%20Boot-duan-kou-%EF%BC%8CRestTemplate%EF%BC%8CIDEA-lei-ceng-ci-%EF%BC%8CAntPath%EF%BC%8CBean-pai-cha-%EF%BC%8CFilter-yu-Interceptor%EF%BC%8CWebFlux%EF%BC%8Cspring.factories%EF%BC%8CMVC-pan-duan-%EF%BC%8C-yi-lai-%EF%BC%8Cstarter-web.html</link><description>### **1. -Dserver.port 参数问题**
+
+**问题：** 在 IDEA 的运行配置中，如何指定端口参数？
+
+1. 在运行配置的 '程序参数 (Program Arguments)' 中指定：
+
+   ```reStructuredText
+   --server.port=8083
+   ```
+
+2. 在运行配置的 '虚拟机选项 (VM Options)' 中使用：
+
+   ```reStructuredText
+   -Dserver.port=8083
+   ```
+
+**总结：**
+
+- `--server.port` 是 Spring Boot 的参数，通过程序参数指定。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-si-%EF%BC%89%EF%BC%9ASpring%20Boot-duan-kou-%EF%BC%8CRestTemplate%EF%BC%8CIDEA-lei-ceng-ci-%EF%BC%8CAntPath%EF%BC%8CBean-pai-cha-%EF%BC%8CFilter-yu-Interceptor%EF%BC%8CWebFlux%EF%BC%8Cspring.factories%EF%BC%8CMVC-pan-duan-%EF%BC%8C-yi-lai-%EF%BC%8Cstarter-web.html</guid><pubDate>Sat, 02 Aug 2025 06:01:20 +0000</pubDate></item><item><title>开发日常拾遗（二十三）：Spring Cloud 与 Nacos 服务映射解析及 @FeignClient 注解原理透析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-san-%EF%BC%89%EF%BC%9ASpring%20Cloud%20-yu-%20Nacos%20-fu-wu-ying-she-jie-xi-ji-%20%40FeignClient%20-zhu-jie-yuan-li-tou-xi.html</link><description>### 1. Spring Cloud 与 Nacos 配置、服务映射问题分析
 
 #### 1. **问题背景与初步分析**
 
