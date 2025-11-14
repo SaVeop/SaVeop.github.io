@@ -45,7 +45,7 @@
 <meta property="og:url" content="https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html">
 <meta property="og:image" content="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg">
 <title>开发日常拾遗（二十五）：Docker MySQL自启、concat用法、SDK定义、本地终端快捷、Sentinel及QPS含义与IDEA日志换行设置</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -118,16 +118,14 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ol>
 <li>
 <p>使用 <code class="notranslate">--restart</code> 参数：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d --restart always mysql:latest
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d --restart always mysql:latest</pre></div>
 <ul>
 <li><code class="notranslate">--restart always</code>：表示无论容器是否正常退出，都自动重启。</li>
 </ul>
 </li>
 <li>
 <p>修改已存在容器的重启策略：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">docker update --restart always mysql-container
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker update --restart always mysql-container</pre></div>
 </li>
 </ol>
 <h2><strong>2. concat 的含义</strong></h2>
@@ -137,14 +135,12 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <ul>
 <li>
 <p><strong>字符串拼接（Java）</strong>：</p>
-<pre lang="java" class="notranslate"><code class="notranslate">String result = "Hello".concat(" World");
-System.out.println(result); // 输出：Hello World
-</code></pre>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">String</span> <span class="pl-s1">result</span> = <span class="pl-s">"Hello"</span>.<span class="pl-en">concat</span>(<span class="pl-s">" World"</span>);
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">result</span>); <span class="pl-c">// 输出：Hello World</span></pre></div>
 </li>
 <li>
 <p><strong>数据库拼接（SQL）</strong>：</p>
-<pre lang="sql" class="notranslate"><code class="notranslate">SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;
-</code></pre>
+<div class="highlight highlight-source-sql"><pre class="notranslate"><span class="pl-k">SELECT</span> CONCAT(first_name, <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span>, last_name) <span class="pl-k">AS</span> full_name <span class="pl-k">FROM</span> employees;</pre></div>
 </li>
 </ul>
 <h2><strong>3. SDK 的定义和含义</strong></h2>
@@ -167,8 +163,7 @@ System.out.println(result); // 输出：Hello World
 </li>
 <li>
 <p>导航到：</p>
-<pre lang="reStructuredText" class="notranslate"><code class="notranslate">Computer\HKEY_CLASSES_ROOT\Directory\Background\shell
-</code></pre>
+<div class="highlight highlight-text-restructuredtext"><pre class="notranslate">Computer<span class="pl-cce">\H</span>KEY_CLASSES_ROOT<span class="pl-cce">\D</span>irectory<span class="pl-cce">\B</span>ackground<span class="pl-cce">\s</span>hell</pre></div>
 </li>
 <li>
 <p>添加新项：</p>
@@ -178,8 +173,7 @@ System.out.println(result); // 输出：Hello World
 </li>
 <li>
 <p>在该项下创建 <code class="notranslate">command</code> 子项，设置默认值为：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">cmd.exe /k cd %V
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">cmd.exe /k <span class="pl-c1">cd</span> %V</pre></div>
 </li>
 </ul>
 </li>
