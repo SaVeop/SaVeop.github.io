@@ -29,7 +29,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <style>
 .avatar {transition: 0.8s;width:64px;height:64px;object-fit: cover;}
 .avatar:hover{transform: scale(1.15) rotate(360deg);}
-#header h1 a{color:inherit;text-decoration:none;vertical-align: bottom;font-size:40px;font-family:Monaco;margin-left:8px;}
+.title-left a{color:inherit;text-decoration:none;vertical-align: bottom;font-size:40px;font-weight: bold;font-family:Monaco;margin-left:8px;}
 .title-right{display:flex;margin:auto 0 0 auto;}
 .title-right button{margin-right:8px;padding:16px;}
 .title-right .circle{padding: 14px 16px;}
@@ -55,8 +55,8 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <body>
     <div id="header">
-<h1>
-    <img src="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg" class="avatar circle" id="avatarImg" alt="avatar"><a class="blogTitle">小黄酱酱的博客</a></h1>
+<div class="title-left">
+    <img src="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg" class="avatar circle" id="avatarImg" alt="avatar"><a class="blogTitle">小黄酱酱的博客</a></div>
 <div class="title-right">
     <a href="https://SaVeop.github.io/tag.html" id="buttonSearch" class="btn btn-invisible circle" title="搜索">
         <svg class="octicon" width="16" height="16" >
@@ -82,7 +82,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <nav class="SideNav border">
 <a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-qi-%EF%BC%89%EF%BC%9A-xi-tong-ming-ling-%E3%80%81-shu-ju-ku-pai-xu-gui-ze-%E3%80%81-wu-fu-hao-zheng-xing-%E3%80%81Logback%20-lou-dong-yu-%20Maven%20packaging.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十七）：系统命令、数据库排序规则、无符号整型、Logback 漏洞与 Maven packaging</span>
     </div>
@@ -93,7 +93,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-liu-%EF%BC%89%EF%BC%9AAtomicInteger%E3%80%81-an-wei-yu-he-qu-yu-%E3%80%81Spring%20%40ConfigurationProperties%20-shi-yong-xiang-jie.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十六）：AtomicInteger、按位与和取余、Spring @ConfigurationProperties 使用详解</span>
     </div>
@@ -104,7 +104,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-wu-%EF%BC%89%EF%BC%9A-huan-cun-chuan-tou-%E3%80%81-si-suo-%E3%80%81CAP-ding-li-yu-fen-bu-shi-shi-wu-he-xin-gai-nian.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十五）：缓存穿透、死锁、CAP定理与分布式事务核心概念</span>
     </div>
@@ -115,7 +115,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-si-%EF%BC%89%EF%BC%9ADocker%20Redis%20-cao-zuo-yu-%20Redis%20-ji-qun-pei-zhi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十四）：Docker Redis 操作与 Redis 集群配置</span>
     </div>
@@ -126,7 +126,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-san-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-yuan-li-yu-%20Elasticsearch%20-ju-he-gui-fan-xiang-jie.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十三）：深度分页原理与 Elasticsearch 聚合规范详解</span>
     </div>
@@ -137,7 +137,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-er-%EF%BC%89%EF%BC%9ATearDown-fang-fa-xiang-jie-%E3%80%81Hutool%20BeanUtil-shu-xing-fu-zhi-yuan-li-yu-Spring%20Boot-ce-shi-bao-jie-gou-jian-yi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十二）：TearDown方法详解、Hutool BeanUtil属性复制原理与Spring Boot测试包结构建议</span>
     </div>
@@ -148,7 +148,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-yi-%EF%BC%89%EF%BC%9ADSL-jian-jie-yu-Elasticsearch%20Query%20DSL-xiang-jie-%EF%BC%8CJava-fu-dian-yu-zheng-shu-lei-xing-qu-bie-zong-jie.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十一）：DSL简介与Elasticsearch Query DSL详解，Java浮点与整数类型区别总结</span>
     </div>
@@ -159,7 +159,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-%EF%BC%89%EF%BC%9AMQ-xiao-xi-dou-di-fang-an-yu-yan-chi-xiao-xi-yuan-li-ji-RabbitMQ-si-xin-jiao-huan-ji-yu-TTL-shi-xian.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（三十）：MQ消息兜底方案与延迟消息原理及RabbitMQ死信交换机与TTL实现</span>
     </div>
@@ -170,7 +170,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-jiu-%EF%BC%89%EF%BC%9ADocker-jing-xiang-shan-%EF%BC%8CNacos-pei-zhi-%EF%BC%8CRabbitMQ-que-ren-hui-diao-%EF%BC%8C-cuo-wu-ri-zhi-%EF%BC%8C-xiao-xi-chi-jiu-hua-%EF%BC%8C-nei-cun-yi-chu-%EF%BC%8CSpring-zhu-ru-yu-%40PostConstruct%EF%BC%8C-zi-jie-zhuan-zi-fu-chuan.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十九）：Docker镜像删，Nacos配置，RabbitMQ确认回调，错误日志，消息持久化，内存溢出，Spring注入与@PostConstruct，字节转字符串</span>
     </div>
@@ -181,7 +181,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-ba-%EF%BC%89%EF%BC%9ASpring%20Boot%20JmxAutoConfiguration-yi-chang-pai-cha-%E3%80%81-ri-zhi-zhan-wei-fu-yong-fa-%E3%80%81Spring%20Cloud%20%40RefreshScope-re-geng-xin-yu-yi-lai-ban-ben-guan-li.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十八）：Spring Boot JmxAutoConfiguration异常排查、日志占位符用法、Spring Cloud @RefreshScope热更新与依赖版本管理</span>
     </div>
@@ -192,7 +192,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-qi-%EF%BC%89%EF%BC%9ALinux%20rm-ming-ling-can-shu-%E3%80%81Docker%20RabbitMQ-wang-luo-ji-zhi-%E3%80%81-dui-lie-zhuang-tai-jie-xi-ji-Spring%20Fanout%20Exchange%20Bean-zhu-ru-gui-ze.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十七）：Linux rm命令参数、Docker RabbitMQ网络机制、队列状态解析及Spring Fanout Exchange Bean注入规则</span>
     </div>
@@ -203,7 +203,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-liu-%EF%BC%89%EF%BC%9AJava-xian-cheng-xiu-mian-%E3%80%81JMeter-luan-ma-jie-jue-%E3%80%81CSV-bian-ma-pei-zhi-yu-XA-fen-bu-shi-shi-wu-li-shi-jie-xi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十六）：Java线程休眠、JMeter乱码解决、CSV编码配置与XA分布式事务历史解析</span>
     </div>
@@ -214,7 +214,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十五）：Docker MySQL自启、concat用法、SDK定义、本地终端快捷、Sentinel及QPS含义与IDEA日志换行设置</span>
     </div>
@@ -225,7 +225,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-si-%EF%BC%89%EF%BC%9ASpring%20Boot-duan-kou-%EF%BC%8CRestTemplate%EF%BC%8CIDEA-lei-ceng-ci-%EF%BC%8CAntPath%EF%BC%8CBean-pai-cha-%EF%BC%8CFilter-yu-Interceptor%EF%BC%8CWebFlux%EF%BC%8Cspring.factories%EF%BC%8CMVC-pan-duan-%EF%BC%8C-yi-lai-%EF%BC%8Cstarter-web.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十四）：Spring Boot端口，RestTemplate，IDEA类层次，AntPath，Bean排查，Filter与Interceptor，WebFlux，spring.factories，MVC判断，依赖，starter-web</span>
     </div>
@@ -236,7 +236,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-san-%EF%BC%89%EF%BC%9ASpring%20Cloud%20-yu-%20Nacos%20-fu-wu-ying-she-jie-xi-ji-%20%40FeignClient%20-zhu-jie-yuan-li-tou-xi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十三）：Spring Cloud 与 Nacos 服务映射解析及 @FeignClient 注解原理透析</span>
     </div>
@@ -263,7 +263,7 @@ if(""!=""){
     var startSite=new Date("");
     var diff=now.getTime()-startSite.getTime();
     var diffDay=Math.floor(diff/(1000*60*60*24));
-    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
 }
 </script></div>
 </body>

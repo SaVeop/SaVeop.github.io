@@ -29,7 +29,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <style>
 .avatar {transition: 0.8s;width:64px;height:64px;object-fit: cover;}
 .avatar:hover{transform: scale(1.15) rotate(360deg);}
-#header h1 a{color:inherit;text-decoration:none;vertical-align: bottom;font-size:40px;font-family:Monaco;margin-left:8px;}
+.title-left a{color:inherit;text-decoration:none;vertical-align: bottom;font-size:40px;font-weight: bold;font-family:Monaco;margin-left:8px;}
 .title-right{display:flex;margin:auto 0 0 auto;}
 .title-right button{margin-right:8px;padding:16px;}
 .title-right .circle{padding: 14px 16px;}
@@ -55,8 +55,8 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <body>
     <div id="header">
-<h1>
-    <img src="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg" class="avatar circle" id="avatarImg" alt="avatar"><a class="blogTitle">小黄酱酱的博客</a></h1>
+<div class="title-left">
+    <img src="https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg" class="avatar circle" id="avatarImg" alt="avatar"><a class="blogTitle">小黄酱酱的博客</a></div>
 <div class="title-right">
     <a href="https://SaVeop.github.io/tag.html" id="buttonSearch" class="btn btn-invisible circle" title="搜索">
         <svg class="octicon" width="16" height="16" >
@@ -82,7 +82,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <nav class="SideNav border">
 <a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-er-%EF%BC%89%EF%BC%9ADocker%20-la-qu-jing-xiang-yu-yun-xing-%20Nacos%20-rong-qi-chang-jian-wen-ti.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十二）：Docker 拉取镜像与运行 Nacos 容器常见问题</span>
     </div>
@@ -93,7 +93,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-yi-%EF%BC%89%EF%BC%9ALinux%20-ji-chu-ming-ling-%E3%80%81Docker%20-cao-zuo-ji-%20MySQL%20-rong-qi-shi-zhan-bi-ji.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十一）：Linux 基础命令、Docker 操作及 MySQL 容器实战笔记</span>
     </div>
@@ -104,7 +104,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-%EF%BC%89%EF%BC%9A-xu-ni-ji-yu-su-zhu-ji-gai-nian-%E3%80%81MySQL%20Docker-pei-zhi-ji-chang-yong-ming-ling.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（二十）：虚拟机与宿主机概念、MySQL Docker配置及常用命令</span>
     </div>
@@ -115,7 +115,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-jiu-%EF%BC%89%EF%BC%9AJava%20Lambda-yin-yong-xiang-jie-%E3%80%81MyBatis-Plus-cha-xun-xing-wei-%E3%80%81-fen-ye-pei-zhi-yu-shu-xing-fu-zhi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十九）：Java Lambda引用详解、MyBatis-Plus查询行为、分页配置与属性复制</span>
     </div>
@@ -126,7 +126,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-ba-%EF%BC%89%EF%BC%9ALombok-gou-zao-han-shu-zhu-ru-xiang-jie-%E3%80%81%40Autowired-ji-zhi-%E3%80%81-fang-fa-yin-yong-%E3%80%81MyBatis-Plus-can-shu-shuo-ming-ji-ID-sheng-cheng-ji-zhi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十八）：Lombok构造函数注入详解、@Autowired机制、方法引用、MyBatis-Plus参数说明及ID生成机制</span>
     </div>
@@ -137,7 +137,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-qi-%EF%BC%89%EF%BC%9A-shu-ju-ku-DDL-ji-fen-lei-%E3%80%81Mermaid-yu-yan-%E3%80%81favicon-ji-.bak-wen-jian-han-yi-%E3%80%81VSCode-yu-IDEA-pei-zhi-%E3%80%81MySQL-biao-jie-gou-she-ji-Prompt-shi-li.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十七）：数据库DDL及分类、Mermaid语言、favicon及.bak文件含义、VSCode与IDEA配置、MySQL表结构设计Prompt示例</span>
     </div>
@@ -148,7 +148,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-liu-%EF%BC%89%EF%BC%9A-liu-lan-qi-huan-cun-%E3%80%81XSS-fang-hu-%E3%80%81i18n%20-guo-ji-hua-%E3%80%81-xiang-mu-qi-dong-%20Banner%E3%80%81-zhu-zi-biao-%E3%80%81Vite%20-cuo-wu-yu-%20Vue%20-tiao-zhuan-wen-ti.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十六）：浏览器缓存、XSS防护、i18n 国际化、项目启动 Banner、主子表、Vite 错误与 Vue 跳转问题</span>
     </div>
@@ -159,7 +159,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-wu-%EF%BC%89%EF%BC%9AMyBatis%20ORM-si-xiang-%E3%80%81Redis-mi-ma-qu-xiao-%E3%80%81RBAC-quan-xian-kong-zhi-yu-ruo-yi-chang-yong-gong-neng.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十五）：MyBatis ORM思想、Redis密码取消、RBAC权限控制与若依常用功能</span>
     </div>
@@ -170,7 +170,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-si-%EF%BC%89%EF%BC%9ANVM-an-zhuang-yu-shi-yong-%E3%80%81npm-guan-li-%E3%80%81JavaScript-xiang-deng-bi-jiao-ji-qian-duan-dai-ma-jie-gou-shu-li.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十四）：NVM安装与使用、npm管理、JavaScript相等比较及前端代码结构梳理</span>
     </div>
@@ -181,7 +181,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-san-%EF%BC%89%EF%BC%9ANPM-quan-ju-an-zhuang-%E3%80%81PowerShell-zhi-xing-ce-lve-%E3%80%81ESLint-pei-zhi-%E3%80%81TypeScript-lei-shu-xing-yu-fang-fa-%E3%80%81-yi-bu-qing-qiu-shi-bie.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十三）：NPM全局安装、PowerShell执行策略、ESLint配置、TypeScript类属性与方法、异步请求识别</span>
     </div>
@@ -192,7 +192,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-er-%EF%BC%89%EF%BC%9AVue.js%20-ji-chu-bi-ji-zhi-zu-jian-jie-gou-%E3%80%81-shu-ju-bang-ding-%E3%80%81-shi-jian-chu-li-%E3%80%81-tiao-jian-xuan-ran-%E3%80%81HTTP%20-qing-qiu-ji-lu-you.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十二）：Vue.js 基础笔记之组件结构、数据绑定、事件处理、条件渲染、HTTP 请求及路由</span>
     </div>
@@ -203,7 +203,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-yi-%EF%BC%89%EF%BC%9AJava%20-fan-xing-%E3%80%81Stream%20map%20-cao-zuo-%E3%80%81reduce%20-lei-ji-%E3%80%81-lei-xing-zhuan-huan-yu-%20Optional%20-shi-yong-chang-jing.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十一）：Java 泛型、Stream map 操作、reduce 累积、类型转换与 Optional 实用场景</span>
     </div>
@@ -214,7 +214,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-%EF%BC%89%EF%BC%9AREST%20-fan-hui-feng-zhuang-%E3%80%81-ri-qi-can-shu-zhu-jie-%E3%80%81-yin-shi-lei-xing-zhuan-huan-%E3%80%81-dong-tai-%20SQL%20-shi-zhan-ji-qiao.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（十）：REST 返回封装、日期参数注解、隐式类型转换、动态 SQL 实战技巧</span>
     </div>
@@ -225,7 +225,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-jiu-%EF%BC%89%EF%BC%9ASerializable%20-yu-%20Lombok%E3%80%81%40PathVariable%20-shi-yong-xiang-jie-%E3%80%81SQL%20%26%20Redis%20-cuo-wu-pai-cha-%E3%80%81-can-shu-zhu-jie-dui-bi-fen-xi.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（九）：Serializable 与 Lombok、@PathVariable 使用详解、SQL &amp; Redis 错误排查、参数注解对比分析</span>
     </div>
@@ -236,7 +236,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     </div>
 </a><a class="SideNav-item d-flex flex-items-center flex-justify-between" href="post/kai-fa-ri-chang-shi-yi-%EF%BC%88-ba-%EF%BC%89%EF%BC%9ATCP-lian-jie-qu-wei-lei-bi-%E3%80%81Spring-ding-shi-ren-wu-cai-keng-%E3%80%81-an-zhuang-quan-xian-bao-cuo-%E3%80%81CMD-ji-qiao-yu-dai-li-ji-zhi-jing-jiang.html">
     <div class="d-flex flex-items-center">
-        <svg class="SideNav-icon octicon" style="witdh:16px;height:16px"><path class="svgTop0" d=""></path>
+        <svg class="SideNav-icon octicon" style="width:16px;height:16px"><path class="svgTop0" d=""></path>
         </svg>
         <span class="listTitle">开发日常拾遗（八）：TCP连接趣味类比、Spring定时任务踩坑、安装权限报错、CMD技巧与代理机制精讲</span>
     </div>
@@ -263,7 +263,7 @@ if(""!=""){
     var startSite=new Date("");
     var diff=now.getTime()-startSite.getTime();
     var diffDay=Math.floor(diff/(1000*60*60*24));
-    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
 }
 </script></div>
 </body>
