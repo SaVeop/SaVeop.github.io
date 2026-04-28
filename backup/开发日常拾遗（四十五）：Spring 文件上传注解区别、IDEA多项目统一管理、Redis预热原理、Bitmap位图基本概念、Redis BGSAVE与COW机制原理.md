@@ -1,0 +1,175 @@
+### **1. `@RequestParam` vs `@RequestPart`**
+
+在 Spring Boot 中，`@RequestParam` 和 `@RequestPart` 都可以用于处理 `MultipartFile` 类型的文件上传，但它们的作用略有不同：
+
+#### **(1) `@RequestParam("file") MultipartFile file`**
+
+- 适用于**表单普通字段**以及**文件上传**。
+- 解析请求参数中的 **multipart/form-data** 类型的 `file`。
+- 适用于 `application/x-www-form-urlencoded` 或 `multipart/form-data` 请求格式。
+
+**示例**：
+
+```java
+@PostMapping("/upload")
+public String upload(@RequestParam("file") MultipartFile file) {
+    return "文件名：" + file.getOriginalFilename();
+}
+```
+
+#### **(2) `@RequestPart("file") MultipartFile file`**
+
+- 主要用于处理**复杂的 multipart 请求**，如 JSON + 文件的组合请求。
+- `@RequestPart` 适用于 `Content-Type: multipart/form-data` 但**更适用于请求体包含多个部分**的情况。
+- 适用于 Spring Cloud Feign 客户端的文件上传。
+
+**示例**：
+
+```java
+@PostMapping("/upload")
+public String upload(@RequestPart("file") MultipartFile file) {
+    return "文件名：" + file.getOriginalFilename();
+}
+```
+
+#### **(3) 二者的主要区别**
+
+|                         | `@RequestParam`          | `@RequestPart`            |
+| ----------------------- | ------------------------ | ------------------------- |
+| **主要用途**            | 处理表单参数（包括文件） | 处理复杂的 multipart 请求 |
+| **适用场景**            | 表单文件上传             | JSON + 文件组合           |
+| **适用于 Feign 客户端** | ❌ 不适用                 | ✅ 适用                    |
+
+**结论**：
+
+- 一般文件上传用 `@RequestParam` 即可。
+- 需要处理复杂 multipart 请求（比如 JSON + 文件）时，使用 `@RequestPart`。
+
+------
+
+### **2. 如何让 Spring Cloud 的所有项目在 IDEA 的 Services 里统一管理**
+
+默认情况下，Spring Boot 项目启动后，不会自动出现在 **IntelliJ IDEA Services** 窗口里，需要手动配置。
+
+#### **(1) 通过 IDEA 添加多个 Spring Boot 运行配置**
+
+1. **打开 `Run | Edit Configurations`**
+2. **点击 `+` 号** → **选择 Spring Boot**
+3. **为每个微服务配置启动类**
+4. **在 Services 里添加所有 Spring Boot 运行配置**
+5. **这样所有 Spring Cloud 项目都可以统一管理，一键启动**
+
+#### **(2) 直接使用 `docker-compose` 统一管理**
+
+如果你的 Spring Cloud 项目使用 Docker 部署，可以在 IDEA 的 **Services** 里启用 `docker-compose` 进行统一管理。
+
+#### **(3) 使用 `spring-boot-admin`**
+
+- `spring-boot-admin` 可以监控多个 Spring Boot 应用，并提供统一的 UI 管理界面。
+
+**结论**：
+
+- **方法 1** 适用于本地开发环境（IDEA 配置）。
+- **方法 2** 适用于容器化部署的 Spring Cloud 项目（Docker）。
+- **方法 3** 适用于更复杂的监控需求（Spring Boot Admin）。
+
+------
+
+### **3. Redis 为什么要预热？适用于什么场景？**
+
+**Redis 预热（Warm-Up）** 是指 **在 Redis 服务启动或缓存失效后，提前加载数据到缓存**，避免大并发时数据库压力过大。
+
+#### **(1) 预热的主要作用**
+
+1. 避免缓存雪崩：
+   - 如果缓存大规模过期，所有请求会打到数据库，导致数据库崩溃。
+2. 减少缓存击穿风险：
+   - **热点数据**（高频访问）如果突然失效，数据库会被瞬间压垮。
+3. 提高系统启动速度：
+   - Redis 重新启动时，避免缓慢加载数据。
+
+#### **(2) 适用场景**
+
+- **高并发系统**（电商秒杀、抢购场景）
+- **热点数据缓存**（排行榜、热门商品、新闻推荐）
+- **定期计算的数据**（统计报表）
+
+#### **(3) 预热方式**
+
+1. 应用启动时主动加载：
+   - 在 `ApplicationRunner` 或 `CommandLineRunner` 里初始化 Redis 缓存。
+2. 定时任务定期预热：
+   - 定时从数据库同步热点数据到 Redis。
+3. Redis 持久化（RDB / AOF）：
+   - 通过 `RDB` 或 `AOF` 避免服务重启后数据丢失。
+
+------
+
+### **4. Bitmap 位图的 bit 概念，与 1024 的关系**
+
+#### **(1) 位图（Bitmap）**
+
+- Redis 的 **Bitmap** 主要用于**存储二进制状态**（0 和 1）。
+- **每个 bit 只占 1 位**，可以用极小的空间存储大规模数据。
+
+#### **(2) `bit` 是什么？**
+
+- `bit`（位）是最小的存储单位。
+- **1 byte（字节） = 8 bit**
+- **1 KB = 1024 byte = 8192 bit**
+
+#### **(3) Bitmap 适用场景**
+
+- **用户签到**（记录每天是否签到）
+- **UV 统计**（是否访问过网站）
+- **黑名单管理**（标记是否封禁）
+
+#### **结论**：
+
+- **Bitmap 的 `bit` 与 1024 关系不大**，但 1024 只是计算存储大小的基本单位。
+- **Bitmap 适合高效存储 0/1 状态数据**，可以节省大量空间。
+
+------
+
+### **5. 为什么 Redis BGSAVE 采用 COW 机制可以避免脏数据？**
+
+#### **(1) BGSAVE 过程**
+
+1. fork 子进程
+   - 子进程共享主进程内存。
+2. 子进程写 RDB
+   - 读取 fork 时的快照数据，并写入 RDB 文件。
+3. 主进程继续处理请求
+   - **读操作：** 访问共享内存。
+   - **写操作：** 由于 COW 机制，拷贝数据副本 B，再修改。
+
+#### **(2) 如何避免脏数据？**
+
+- **COW 机制下，子进程只访问 fork 时的快照，不受主进程修改影响**。
+- **主进程的修改只影响数据副本 B，不影响原始数据**，所以不会影响 RDB 备份。
+
+------
+
+### **6. 如果没有 Copy-On-Write（COW），会出现什么问题？**
+
+如果没有 COW 机制：
+
+1. 主进程直接修改共享数据
+   - 可能导致 RDB 备份数据在保存过程中被篡改。
+2. 快照数据可能不一致
+   - 如果主进程在 `BGSAVE` 过程中修改 key，RDB 可能会存入不完整的数据。
+3. 可能存入“部分新、部分旧”的数据
+   - 备份的数据可能是一部分新值 + 一部分旧值，造成数据不一致。
+
+#### **(1) 脏数据情况**
+
+| 时间点   | 事件                                         |
+| -------- | -------------------------------------------- |
+| T1       | fork 进程，创建子进程                        |
+| T2       | 主进程修改 `key1`                            |
+| T3       | 子进程写入 `key1`                            |
+| **结果** | **RDB 存入的是已修改的数据，导致脏数据问题** |
+
+#### **(2) COW 解决方案**
+
+- **COW 让主进程修改数据时，先拷贝副本**，保证 RDB 备份数据的一致性。

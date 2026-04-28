@@ -1,0 +1,93 @@
+### **1. AtomicInteger 的相关回忆**
+
+- `AtomicInteger` 简介：
+  - 是 `java.util.concurrent.atomic` 包中的类。
+  - 提供了基于 CAS（Compare-And-Swap）机制的线程安全整数操作。
+- 特点：
+  - **线程安全**：适合多线程环境，无需额外加锁。
+  - 常用方法：
+    - `incrementAndGet()`：自增 1 并返回新值。
+    - `getAndIncrement()`：返回当前值并自增 1。
+    - `compareAndSet(expectedValue, newValue)`：如果当前值等于期望值，则原子地更新为新值。
+
+------
+
+### **2. `&` 和 `%` 的区别**
+
+- `&` 和 `%` 是否都可以用来取余？
+
+- `%` 的作用：
+
+  - 取余运算符，返回除法的余数。
+  - 适用于任意整数。
+  - 例如：`10 % 8 = 2`。
+
+  - `&` 的作用：
+    - 按位与运算符，逐位对二进制进行操作。
+    - 适用于位操作优化的取模，只能用于 2 的幂次：
+      - `n & (m - 1)`，`m` 必须是 2 的幂。
+      - 例如：`10 & 7 = 2`，因为 `7` 的二进制是 `0111`。
+  - 总结：
+    - `&` 只能取 2 的幂次模，速度更快。
+    - `%` 可以处理任意模数，但速度稍慢。
+
+------
+
+### **3. Spring 的 `@ConfigurationProperties` 注解**
+
+- `@ConfigurationProperties` 注释的类是否会被 Spring 自动扫描为 Bean？
+
+- 核心点：
+
+  - `@ConfigurationProperties` 的作用是将配置文件中的属性值绑定到 Java 类的字段中。
+  - 单独使用 `@ConfigurationProperties`，类不会自动成为 Spring 的 Bean。
+
+- 成为 Bean 的方法：
+
+  1. 加上 `@Component` 或 `@Configuration` 注解：
+
+     ```java
+     @Component
+     @ConfigurationProperties("spring.cloud.nacos.discovery")
+     public class NacosDiscoveryProperties {
+         private String serverAddr;
+         private String username;
+     }
+     ```
+
+  2. 通过 `@EnableConfigurationProperties` 显式加载：
+
+     ```java
+     @Configuration
+     @EnableConfigurationProperties(NacosDiscoveryProperties.class)
+     public class AppConfig {
+     }
+     ```
+
+  3. Spring Boot 自动配置：
+
+     - 某些 Starter 模块中会通过 `spring.factories` 自动启用。
+
+#### **3.1 具体案例**
+
+```java
+@ConfigurationProperties("spring.cloud.nacos.discovery")
+public class NacosDiscoveryProperties {
+    private String serverAddr;
+    private String username;
+}
+```
+
+- 解释：
+  - 如果项目中引入了 `spring-cloud-starter-alibaba-nacos-discovery`，类可能会通过自动配置机制注册为 Bean。
+
+#### **3.2 确认方法**
+
+- 检查是否已注册：
+
+  ```java
+  @Autowired
+  private NacosDiscoveryProperties nacosDiscoveryProperties;
+  ```
+
+- 查看源码是否有 `@EnableConfigurationProperties` 注册。

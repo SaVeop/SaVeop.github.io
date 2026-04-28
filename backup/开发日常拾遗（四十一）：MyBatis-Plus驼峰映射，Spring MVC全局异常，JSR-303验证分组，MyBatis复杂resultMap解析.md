@@ -1,0 +1,328 @@
+#### **1. MyBatis-Plus 的自动驼峰映射**
+
+- **问题**：MyBatis-Plus 的自动驼峰映射是否默认开启？MyBatis 的自动驼峰映射是否默认关闭？
+
+- **结论**：
+
+  1. MyBatis-Plus
+
+      自动驼峰映射默认是开启的。
+
+     - 配置属性 `map-underscore-to-camel-case` 在 MyBatis-Plus 的 `configuration` 中默认值为 `true`。
+     - 即数据库字段 `course_name` 可以直接映射到实体类字段 `courseName`，无需额外设置。
+
+  2. MyBatis
+
+      默认关闭自动驼峰映射。
+
+     - 需要在 `mybatis-config.xml`或其他配置文件中显式开启：
+
+       ```yaml
+       mybatis:
+         configuration:
+           map-underscore-to-camel-case: true
+       ```
+
+  3. **MyBatis-Plus 自动继承了 MyBatis 的特性**，但它通过默认值 `true` 改进了开发体验。
+
+- **如何确认配置生效**：
+
+  1. 打开 `MyBatis-Plus` 的日志输出级别。
+  2. 检查 SQL 语句中字段是否正常映射。
+
+------
+
+#### **2. `@ControllerAdvice` 的作用**
+
+- **定义**：
+
+  - `@ControllerAdvice` 是 Spring MVC 提供的全局控制器增强工具，常用于对控制器逻辑进行集中处理。
+
+- **主要功能**：
+
+  1. 全局异常处理：配合 `@ExceptionHandler` 实现统一异常处理。
+
+     ```java
+     @ControllerAdvice
+     public class GlobalExceptionHandler {
+         @ExceptionHandler(Exception.class)
+         @ResponseBody
+         public String handleException(Exception e) {
+             return "Error: " + e.getMessage();
+         }
+     }
+     ```
+
+  2. 数据绑定处理：自定义全局的数据绑定逻辑。
+
+     - 例如，将全局日期格式从 `yyyy-MM-dd` 转换为 `LocalDate`。
+
+  3. 全局数据预处理：配合 `@ModelAttribute`，在所有请求中添加统一数据。
+
+     ```java
+     @ControllerAdvice
+     public class GlobalDataHandler {
+         @ModelAttribute
+         public void addAttributes(Model model) {
+             model.addAttribute("globalData", "This is global data.");
+         }
+     }
+     ```
+
+- **注意**：
+
+  - 适用于所有标注了 `@RequestMapping` 的控制器。
+  - 若某些控制器需要排除，可结合条件注解如 `@RestControllerAdvice(basePackages = "...")`。
+
+------
+
+#### **3. JSR-303**
+
+- **定义**：
+  - JSR-303 是 Java 的 Bean Validation 规范，英文全称为 **Java Specification Request 303**。
+  - 它提供了一套用于校验对象字段或方法参数的标准注解。
+- **常见注解**：
+  - `@NotNull`：字段不能为 `null`。
+  - `@NotEmpty`：字段不能为 `null` 且不能为空字符串（适用于集合、字符串等）。
+  - `@NotBlank`：字段不能为 `null` 且不能是空白字符。
+  - `@Min` 和 `@Max`：字段值的最小值和最大值限制。
+  - `@Size`：字符串、集合等字段的长度或元素个数限制。
+- **工作原理**：
+  - 配合框架如 Spring Boot 使用时，JSR-303 校验器会通过注解对方法参数或实体字段进行校验。
+  - 若校验失败，会抛出 `ConstraintViolationException` 或 `MethodArgumentNotValidException`。
+
+------
+
+#### **4. 使用 `@Validated` 指定分组的影响**
+
+- **问题**：在 `@Validated` 中指定分组（如 `{ValidationGroups.Insert.class}`），未分组的校验规则是否失效？
+
+- **结论**：
+
+  - **是的，未分组的校验规则会失效**。
+  - 原因：
+    - 使用 `@Validated({ValidationGroups.Insert.class})` 后，校验器只会校验与 `Insert` 分组匹配的规则。
+    - 未分组的注解被视为默认组（`Default`），不会参与指定分组的校验。
+
+- **解决方法**：
+
+  1. 若希望未分组规则也参与校验，可显式添加 `Default`组：
+
+     ```java
+     @Validated({ValidationGroups.Insert.class, Default.class})
+     ```
+
+  2. 为所有注解明确分组，避免未分组规则的失效。
+
+- **示例**：
+
+  DTO 类：
+
+  ```java
+  public class AddCourseDto {
+      // 默认分组（Default），未指定分组
+      @NotEmpty(message = "课程名称不能为空")
+      private String name;
+  
+      // 属于 Insert 分组
+      @NotEmpty(message = "课程分类不能为空", groups = {ValidationGroups.Insert.class})
+      private String category;
+  }
+  ```
+
+  控制器：
+
+  ```java
+  @PostMapping("/add")
+  public void addCourse(@RequestBody @Validated({ValidationGroups.Insert.class, Default.class}) AddCourseDto dto) {
+      // 校验逻辑
+  }
+  ```
+
+
+
+------
+
+### **5. MyBatis `resultMap` 实现直接映射的详解**
+
+#### **5.1 什么是 `resultMap`？**
+
+`resultMap` 是 MyBatis 提供的一个核心功能，用于实现结果集和 Java 对象的自定义映射关系。
+它能够解决字段名称和属性名称不一致的问题，比如数据库中的字段为 `course_name`，而实体类中的字段为 `courseName`。
+
+#### **5.2 直接映射的作用**
+
+通过定义 `resultMap`，可以手动指定数据库字段与实体类属性的映射关系，从而实现精准控制。
+
+##### **特点**：
+
+1. 支持 **字段名称与属性名称不一致**的映射。
+2. 支持嵌套对象的映射。
+3. 支持 `association`（单对象）和 `collection`（集合）类型的复杂对象映射。
+
+#### **5.3 `resultMap` 的基本用法**
+
+**示例：实现数据库字段和实体类的映射**
+
+##### **数据库表结构**
+
+```sql
+CREATE TABLE course (
+    id INT PRIMARY KEY,
+    course_name VARCHAR(50),
+    course_price DECIMAL(10, 2)
+);
+```
+
+##### **Java 实体类**
+
+```java
+public class Course {
+    private Integer id;
+    private String courseName;
+    private BigDecimal coursePrice;
+
+    // Getters and Setters
+}
+```
+
+##### **Mapper 配置文件**
+
+```xml
+<mapper namespace="com.example.mapper.CourseMapper">
+
+    <!-- 定义 resultMap -->
+    <resultMap id="CourseResultMap" type="com.example.entity.Course">
+        <id column="id" property="id"/>
+        <result column="course_name" property="courseName"/>
+        <result column="course_price" property="coursePrice"/>
+    </resultMap>
+
+    <!-- 查询语句直接引用 resultMap -->
+    <select id="selectAllCourses" resultMap="CourseResultMap">
+        SELECT id, course_name, course_price FROM course
+    </select>
+
+</mapper>
+```
+
+#### **5.4 注意点**
+
+1. `column` 对应数据库字段名：
+   - 如 `course_name`，它是数据库字段名。
+2. `property` 对应 Java 实体类的属性名：
+   - 如 `courseName`，它是实体类的属性名。
+3. `id` 标签：
+   - 标记主键字段，可以指定主键的映射规则。
+4. `result` 标签：
+   - 映射普通字段。
+
+#### **5.5 如何调用？**
+
+##### **Mapper 接口**
+
+```java
+@Mapper
+public interface CourseMapper {
+    @Select("SELECT id, course_name, course_price FROM course")
+    @ResultMap("CourseResultMap")
+    List<Course> selectAllCourses();
+}
+```
+
+##### **调用方法**
+
+```java
+@Autowired
+private CourseMapper courseMapper;
+
+public void testResultMap() {
+    List<Course> courses = courseMapper.selectAllCourses();
+    courses.forEach(course -> System.out.println(course.getCourseName()));
+}
+```
+
+#### **5.6 使用 `resultMap` 的场景**
+
+- 数据库字段与实体类字段不一致时。
+- 需要映射嵌套对象或复杂对象结构时。
+- 数据库字段名为下划线形式，而实体类属性名为驼峰形式，且不使用自动驼峰映射功能时。
+
+#### **5.7 复杂映射示例：嵌套对象**
+
+##### **数据库表结构**
+
+```sql
+CREATE TABLE course (
+    id INT PRIMARY KEY,
+    course_name VARCHAR(50),
+    teacher_id INT
+);
+
+CREATE TABLE teacher (
+    id INT PRIMARY KEY,
+    teacher_name VARCHAR(50)
+);
+```
+
+##### **实体类结构**
+
+```java
+public class Course {
+    private Integer id;
+    private String courseName;
+    private Teacher teacher;
+    // Getters and Setters
+}
+
+public class Teacher {
+    private Integer id;
+    private String teacherName;
+    // Getters and Setters
+}
+```
+
+##### **Mapper 配置文件**
+
+```xml
+<mapper namespace="com.example.mapper.CourseMapper">
+
+    <!-- Teacher 的 resultMap -->
+    <resultMap id="TeacherResultMap" type="com.example.entity.Teacher">
+        <id column="id" property="id"/>
+        <result column="teacher_name" property="teacherName"/>
+    </resultMap>
+
+    <!-- Course 的 resultMap，嵌套 Teacher -->
+    <resultMap id="CourseResultMap" type="com.example.entity.Course">
+        <id column="id" property="id"/>
+        <result column="course_name" property="courseName"/>
+        <association property="teacher" javaType="com.example.entity.Teacher" resultMap="TeacherResultMap"/>
+    </resultMap>
+
+    <!-- 查询语句 -->
+    <select id="selectAllCoursesWithTeacher" resultMap="CourseResultMap">
+        SELECT c.id, c.course_name, t.id AS teacher_id, t.teacher_name
+        FROM course c
+        LEFT JOIN teacher t ON c.teacher_id = t.id
+    </select>
+
+</mapper>
+```
+
+##### **调用示例**
+
+```java
+List<Course> courses = courseMapper.selectAllCoursesWithTeacher();
+for (Course course : courses) {
+    System.out.println("Course: " + course.getCourseName() + ", Teacher: " + course.getTeacher().getTeacherName());
+}
+```
+
+#### **5.8 总结**
+
+- **简单映射**：通过 `resultMap` 显式声明数据库字段与实体类属性的关系。
+- **复杂映射**：通过嵌套的 `association` 和 `collection` 实现对象嵌套的映射。
+- **灵活性强**：即使自动驼峰映射无法满足需求，`resultMap` 也能轻松应对。
+
+**建议**：开发中优先尝试自动驼峰映射，遇到复杂场景再考虑手动配置 `resultMap`。

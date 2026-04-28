@@ -1,2 +1,312 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Mon, 27 Apr 2026 17:16:34 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster></channel></rss>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>小黄酱酱的博客</title><link>https://SaVeop.github.io</link><description>life sucks, but you're gonna love it!</description><copyright>小黄酱酱的博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://64.media.tumblr.com/54b7962c7fd7415a23501b01350a55e5/8589f1f7b7748eb0-be/s1280x1920/3384ef8a7a026ae58bef6492082a148db1af4912.jpg</url><title>avatar</title><link>https://SaVeop.github.io</link></image><lastBuildDate>Tue, 28 Apr 2026 17:43:51 +0000</lastBuildDate><managingEditor>小黄酱酱的博客</managingEditor><ttl>60</ttl><webMaster>小黄酱酱的博客</webMaster><item><title>开发日常拾遗（五十二）：阿里云 OSS 注册及项目配置教程</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-er-%EF%BC%89%EF%BC%9A-a-li-yun-%20OSS%20-zhu-ce-ji-xiang-mu-pei-zhi-jiao-cheng.html</link><description># 阿里云 OSS 注册及项目配置教程
+
+本文档介绍如何从零开始 **注册阿里云 OSS、创建 Bucket、获取 AccessKey 并在项目中完成 OSS 配置**，适用于前后端分离项目、微服务项目（Nacos 配置）等场景。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-er-%EF%BC%89%EF%BC%9A-a-li-yun-%20OSS%20-zhu-ce-ji-xiang-mu-pei-zhi-jiao-cheng.html</guid><pubDate>Sun, 07 Dec 2025 14:58:09 +0000</pubDate></item><item><title>开发日常拾遗（五十一）：Docker存储空间不足的处理及磁盘扩容</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-yi-%EF%BC%89%EF%BC%9ADocker-cun-chu-kong-jian-bu-zu-de-chu-li-ji-ci-pan-kuo-rong.html</link><description># Docker 存储空间不足处理办法
+
+Docker 存储空间不足后，容易引起容器应用无法正常运行，例如 **RocketMQ 会拒绝写入消息**、**Docker 无法启动** 等情况。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-yi-%EF%BC%89%EF%BC%9ADocker-cun-chu-kong-jian-bu-zu-de-chu-li-ji-ci-pan-kuo-rong.html</guid><pubDate>Sun, 07 Dec 2025 14:50:48 +0000</pubDate></item><item><title>开发日常拾遗（五十）：Netty缓存管理器及常见协议实现者</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-%EF%BC%89%EF%BC%9ANetty-huan-cun-guan-li-qi-ji-chang-jian-xie-yi-shi-xian-zhe.html</link><description>## 1. NettyWebSocketDeviceChannelCacheManager中的缓存管理器解析
+
+- **核心功能**：
+  - 管理 WebSocket 连接的状态缓存
+  - 通过 ConcurrentMap（线程安全的并发Map）保存连接通道与账号的映射关系
+  - 持续维护在线连接的状态，实现快速访问和身份绑定
+- **主要数据结构**：
+  - `ConcurrentHashMap&lt;String, ChannelHandlerContext&gt; CHANNELID_CHANNEL_MAP`
+     记录所有在线的 WebSocket 连接通道（Channel）
+  - 账号与通道的映射关系分别保存在专门的结构（如 `nettyChannelWsDeviceGroup`、`nettyChannelWsWatchmanGroup`）
+  - `watchmanDeviceMap` 管理值班账号绑定的设备列表
+- **重要特点**：
+  - 类是 Spring 的 **单例 Bean**，保证整个应用运行期间该缓存管理器只有一个实例
+  - `ConcurrentMap` 作为成员变量被反复使用，支持多线程安全访问
+  - 多线程读写 `ConcurrentMap` 性能优越，不会出现卡死或全局锁
+- **应用场景**：
+  - 绑定用户信息到通道上，方便后续消息处理快速鉴权和识别
+  - 维护用户在线状态，实现消息广播和连接管理
+  - 保障连接状态跨业务逻辑共享且不丢失
+
+------
+
+## 2. Spring 单例 Bean 的缓存管理器特性
+
+- **Spring 默认 Bean 是单例**，整个容器只有一个实例，成员变量生命周期与容器一致
+- 通过单例保证缓存数据能跨线程、跨请求共享，避免重复创建导致的缓存丢失
+- 如果不是单例，缓存管理器中保存的 Map 会分散，导致状态错乱、连接映射失败
+- **总结**：单例 Bean 是实现全局状态共享和管理缓存的关键保障
+
+------
+
+## 3. CHANNELID_CHANNEL_MAP 是实时连接的映射
+
+- **用途**：记录当前所有在线的 Netty WebSocket 连接（Channel）
+- **行为**：
+  - 连接建立时加入 Map
+  - 连接断开时移除 Map
+- **区别于业务映射**：
+  - 业务映射（如账号 ⇌ Channel）是用户与连接的绑定
+  - CHANNELID_CHANNEL_MAP 是连接本身的实时管理
+
+------
+
+## 4. WebSocket、MQTT、HTTP、TCP/UDP 协议实现者解析
+
+| 协议      | 所属层级 | 实现者                                  | 说明                                               |
+| --------- | -------- | --------------------------------------- | -------------------------------------------------- |
+| TCP/UDP   | 传输层   | 操作系统内核（协议栈）                  | 程序员通过 Socket 等接口使用，协议由系统实现       |
+| HTTP      | 应用层   | 框架或库（Netty、Tomcat等）             | 框架解析HTTP报文，实现协议逻辑                     |
+| WebSocket | 应用层   | 框架（Netty、Spring等）                 | 基于 HTTP 协议升级建立持久连接，实现自定义消息传递 |
+| MQTT      | 应用层   | 专门的客户端库或服务器（EMQX、MQTTX等） | 发布订阅协议，解析 MQTT 报文，实现消息通信         |
+
+
+
+- **MQTTX 类似 Postman**，是基于 MQTT 协议的调试客户端，实现了协议解析和消息交互功能。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-shi-%EF%BC%89%EF%BC%9ANetty-huan-cun-guan-li-qi-ji-chang-jian-xie-yi-shi-xian-zhe.html</guid><pubDate>Thu, 07 Aug 2025 07:35:54 +0000</pubDate></item><item><title>开发日常拾遗（四十九）：Netty之Channel、Handler、Pipeline、Context 等机制详解</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-jiu-%EF%BC%89%EF%BC%9ANetty-zhi-Channel%E3%80%81Handler%E3%80%81Pipeline%E3%80%81Context%20-deng-ji-zhi-xiang-jie.html</link><description>## 一、基本组件与关系
+
+### 1. 什么是处理器（Handler）？
+
+- Netty 中的“处理器”通常指 `ChannelHandler` 接口的实现类（可细分为 `ChannelInboundHandler` 与 `ChannelOutboundHandler`）。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-jiu-%EF%BC%89%EF%BC%9ANetty-zhi-Channel%E3%80%81Handler%E3%80%81Pipeline%E3%80%81Context%20-deng-ji-zhi-xiang-jie.html</guid><pubDate>Thu, 07 Aug 2025 07:30:03 +0000</pubDate></item><item><title>开发日常拾遗（四十八）：Java异常与权限，Spring Bean与Aware，BeanDefinition与事务，代理AOP，BLOB/CLOB，InnoDB版本链解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-ba-%EF%BC%89%EF%BC%9AJava-yi-chang-yu-quan-xian-%EF%BC%8CSpring%20Bean-yu-Aware%EF%BC%8CBeanDefinition-yu-shi-wu-%EF%BC%8C-dai-li-AOP%EF%BC%8CBLOB-CLOB%EF%BC%8CInnoDB-ban-ben-lian-jie-xi.html</link><description>### **1. Java 中的异常分类**
+
+Java 中的异常分为以下三类：
+
+- **受检异常（Checked Exception）**
+
+  - 继承自 `Exception`，但不包括 `RuntimeException` 及其子类。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-ba-%EF%BC%89%EF%BC%9AJava-yi-chang-yu-quan-xian-%EF%BC%8CSpring%20Bean-yu-Aware%EF%BC%8CBeanDefinition-yu-shi-wu-%EF%BC%8C-dai-li-AOP%EF%BC%8CBLOB-CLOB%EF%BC%8CInnoDB-ban-ben-lian-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:44:32 +0000</pubDate></item><item><title>开发日常拾遗（四十七）：深度分页优化、联合索引与回表、Join 优化、MySQL 与 Redis 主从复制、事务日志解析、IO 分类与 InnoDB 内部元信息解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-qi-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-you-hua-%E3%80%81-lian-he-suo-yin-yu-hui-biao-%E3%80%81Join%20-you-hua-%E3%80%81MySQL%20-yu-%20Redis%20-zhu-cong-fu-zhi-%E3%80%81-shi-wu-ri-zhi-jie-xi-%E3%80%81IO%20-fen-lei-yu-%20InnoDB%20-nei-bu-yuan-xin-xi-jie-xi.html</link><description>### **一、深度分页查询的优化**
+
+#### 1. 问题描述
+
+查询如下 SQL 的效率差异：
+
+1. **慢查询**
+
+   ```sql
+   SELECT * FROM tb_sku LIMIT 9000000, 10;
+   ```
+
+   - 这条 SQL 从第 9,000,000 行开始取 10 行数据，MySQL 需要扫描和丢弃前面 9,000,000 条记录，效率低下。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-qi-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-you-hua-%E3%80%81-lian-he-suo-yin-yu-hui-biao-%E3%80%81Join%20-you-hua-%E3%80%81MySQL%20-yu-%20Redis%20-zhu-cong-fu-zhi-%E3%80%81-shi-wu-ri-zhi-jie-xi-%E3%80%81IO%20-fen-lei-yu-%20InnoDB%20-nei-bu-yuan-xin-xi-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:42:59 +0000</pubDate></item><item><title>开发日常拾遗（四十六）：锁重入原理与意义、Redis PSYNC 增量同步、BGSAVE 机制、上下文切换与竞争条件、MySQL主键查询与索引解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-liu-%EF%BC%89%EF%BC%9A-suo-zhong-ru-yuan-li-yu-yi-yi-%E3%80%81Redis%20PSYNC%20-zeng-liang-tong-bu-%E3%80%81BGSAVE%20-ji-zhi-%E3%80%81-shang-xia-wen-qie-huan-yu-jing-zheng-tiao-jian-%E3%80%81MySQL-zhu-jian-cha-xun-yu-suo-yin-jie-xi.html</link><description>### **1. 什么是锁的重入，为什么要锁重入？**
+
+#### **锁重入的含义**
+
+锁重入（Reentrant Lock）指的是**同一个线程在持有锁的情况下，可以多次获得该锁而不会发生死锁**。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-liu-%EF%BC%89%EF%BC%9A-suo-zhong-ru-yuan-li-yu-yi-yi-%E3%80%81Redis%20PSYNC%20-zeng-liang-tong-bu-%E3%80%81BGSAVE%20-ji-zhi-%E3%80%81-shang-xia-wen-qie-huan-yu-jing-zheng-tiao-jian-%E3%80%81MySQL-zhu-jian-cha-xun-yu-suo-yin-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:40:18 +0000</pubDate></item><item><title>开发日常拾遗（四十五）：Spring 文件上传注解区别、IDEA多项目统一管理、Redis预热原理、Bitmap位图基本概念、Redis BGSAVE与COW机制原理</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-wu-%EF%BC%89%EF%BC%9ASpring%20-wen-jian-shang-chuan-zhu-jie-qu-bie-%E3%80%81IDEA-duo-xiang-mu-tong-yi-guan-li-%E3%80%81Redis-yu-re-yuan-li-%E3%80%81Bitmap-wei-tu-ji-ben-gai-nian-%E3%80%81Redis%20BGSAVE-yu-COW-ji-zhi-yuan-li.html</link><description>### **1. `@RequestParam` vs `@RequestPart`**
+
+在 Spring Boot 中，`@RequestParam` 和 `@RequestPart` 都可以用于处理 `MultipartFile` 类型的文件上传，但它们的作用略有不同：
+
+#### **(1) `@RequestParam('file') MultipartFile file`**
+
+- 适用于**表单普通字段**以及**文件上传**。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-wu-%EF%BC%89%EF%BC%9ASpring%20-wen-jian-shang-chuan-zhu-jie-qu-bie-%E3%80%81IDEA-duo-xiang-mu-tong-yi-guan-li-%E3%80%81Redis-yu-re-yuan-li-%E3%80%81Bitmap-wei-tu-ji-ben-gai-nian-%E3%80%81Redis%20BGSAVE-yu-COW-ji-zhi-yuan-li.html</guid><pubDate>Sat, 02 Aug 2025 06:38:49 +0000</pubDate></item><item><title>开发日常拾遗（四十四）：课程计划排序、MyBatis查询默认值、Spring文件上传注解、配置属性注入、事务原理与自调用问题、文件读写基础解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-si-%EF%BC%89%EF%BC%9A-ke-cheng-ji-hua-pai-xu-%E3%80%81MyBatis-cha-xun-mo-ren-zhi-%E3%80%81Spring-wen-jian-shang-chuan-zhu-jie-%E3%80%81-pei-zhi-shu-xing-zhu-ru-%E3%80%81-shi-wu-yuan-li-yu-zi-diao-yong-wen-ti-%E3%80%81-wen-jian-du-xie-ji-chu-jie-xi.html</link><description>### **1. 如何实现演示课程计划上移、下移以及排序的功能**
+
+- **需求说明**: 实现课程计划的排序功能，支持课程条目的上移、下移。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-si-%EF%BC%89%EF%BC%9A-ke-cheng-ji-hua-pai-xu-%E3%80%81MyBatis-cha-xun-mo-ren-zhi-%E3%80%81Spring-wen-jian-shang-chuan-zhu-jie-%E3%80%81-pei-zhi-shu-xing-zhu-ru-%E3%80%81-shi-wu-yuan-li-yu-zi-diao-yong-wen-ti-%E3%80%81-wen-jian-du-xie-ji-chu-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:37:34 +0000</pubDate></item><item><title>开发日常拾遗（四十三）：NFS和GFS英文全称、HDFS中HD含义、MIME type定义及用途、MD5摘要算法原理与应用</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-san-%EF%BC%89%EF%BC%9ANFS-he-GFS-ying-wen-quan-cheng-%E3%80%81HDFS-zhong-HD-han-yi-%E3%80%81MIME%20type-ding-yi-ji-yong-tu-%E3%80%81MD5-zhai-yao-suan-fa-yuan-li-yu-ying-yong.html</link><description>### 1. **NFS 和 GFS 的英文全称**
+
+- NFS: Network File System（网络文件系统）
+  - 用于允许计算机通过网络共享文件。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-san-%EF%BC%89%EF%BC%9ANFS-he-GFS-ying-wen-quan-cheng-%E3%80%81HDFS-zhong-HD-han-yi-%E3%80%81MIME%20type-ding-yi-ji-yong-tu-%E3%80%81MD5-zhai-yao-suan-fa-yuan-li-yu-ying-yong.html</guid><pubDate>Sat, 02 Aug 2025 06:35:19 +0000</pubDate></item><item><title>开发日常拾遗（四十二）：resultMap association与collection区别，Java变量初始化，throw Exception侵入性，沙箱测试与配置加载问题</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-er-%EF%BC%89%EF%BC%9AresultMap%20association-yu-collection-qu-bie-%EF%BC%8CJava-bian-liang-chu-shi-hua-%EF%BC%8Cthrow%20Exception-qin-ru-xing-%EF%BC%8C-sha-xiang-ce-shi-yu-pei-zhi-jia-zai-wen-ti.html</link><description>### 1. **Association 和 Collection 标签的区别**
+
+在 MyBatis 的 `resultMap` 中，`association` 和 `collection` 是两个重要的标签，用于映射数据库查询结果到 Java 对象中，但它们的作用不同：
+
+- **`association`**：用于映射一对一关系。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-er-%EF%BC%89%EF%BC%9AresultMap%20association-yu-collection-qu-bie-%EF%BC%8CJava-bian-liang-chu-shi-hua-%EF%BC%8Cthrow%20Exception-qin-ru-xing-%EF%BC%8C-sha-xiang-ce-shi-yu-pei-zhi-jia-zai-wen-ti.html</guid><pubDate>Sat, 02 Aug 2025 06:34:07 +0000</pubDate></item><item><title>开发日常拾遗（四十一）：MyBatis-Plus驼峰映射，Spring MVC全局异常，JSR-303验证分组，MyBatis复杂resultMap解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-yi-%EF%BC%89%EF%BC%9AMyBatis-Plus-tuo-feng-ying-she-%EF%BC%8CSpring%20MVC-quan-ju-yi-chang-%EF%BC%8CJSR-303-yan-zheng-fen-zu-%EF%BC%8CMyBatis-fu-za-resultMap-jie-xi.html</link><description>#### **1. MyBatis-Plus 的自动驼峰映射**
+
+- **问题**：MyBatis-Plus 的自动驼峰映射是否默认开启？MyBatis 的自动驼峰映射是否默认关闭？
+
+- **结论**：
+
+  1. MyBatis-Plus
+
+      自动驼峰映射默认是开启的。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-yi-%EF%BC%89%EF%BC%9AMyBatis-Plus-tuo-feng-ying-she-%EF%BC%8CSpring%20MVC-quan-ju-yi-chang-%EF%BC%8CJSR-303-yan-zheng-fen-zu-%EF%BC%8CMyBatis-fu-za-resultMap-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:32:45 +0000</pubDate></item><item><title>开发日常拾遗（四十）：MyBatis Mapper映射加载异常、Collectors.toMap与map区别、Java流引用传递机制详解、树结构组装中引用共享原理解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-%EF%BC%89%EF%BC%9AMyBatis%20Mapper-ying-she-jia-zai-yi-chang-%E3%80%81Collectors.toMap-yu-map-qu-bie-%E3%80%81Java-liu-yin-yong-chuan-di-ji-zhi-xiang-jie-%E3%80%81-shu-jie-gou-zu-zhuang-zhong-yin-yong-gong-xiang-yuan-li-jie-xi.html</link><description>### **1. 测试运行时，Mapper 找不到对应的 SQL 映射问题**
+
+##### **问题描述：**
+
+运行以下测试时，抛出了 `NullPointerException` 和 `Invalid bound statement` 错误：
+
+```java
+@Test
+void testCourseCategory() {
+    List&lt;CourseCategoryDto&gt; courseCategoryDtos = courseCategoryMapper.selectTreeNodes('1');
+    System.out.println(courseCategoryDtos);
+}
+```
+
+**报错信息：**
+
+1. **`NullPointerException`**
+   发生在 `courseCategoryMapper.selectTreeNodes('1')` 处，表示 `courseCategoryMapper` 为 `null`。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-shi-%EF%BC%89%EF%BC%9AMyBatis%20Mapper-ying-she-jia-zai-yi-chang-%E3%80%81Collectors.toMap-yu-map-qu-bie-%E3%80%81Java-liu-yin-yong-chuan-di-ji-zhi-xiang-jie-%E3%80%81-shu-jie-gou-zu-zhuang-zhong-yin-yong-gong-xiang-yuan-li-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:31:34 +0000</pubDate></item><item><title>开发日常拾遗（三十九）：跨域问题原因与解决方案、Nginx跨域配置、SQL WITH RECURSIVE语法、递归SQL写法区别、Java Stream API toMap示例解析、RPC概念与工作流程</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-jiu-%EF%BC%89%EF%BC%9A-kua-yu-wen-ti-yuan-yin-yu-jie-jue-fang-an-%E3%80%81Nginx-kua-yu-pei-zhi-%E3%80%81SQL%20WITH%20RECURSIVE-yu-fa-%E3%80%81-di-gui-SQL-xie-fa-qu-bie-%E3%80%81Java%20Stream%20API%20toMap-shi-li-jie-xi-%E3%80%81RPC-gai-nian-yu-gong-zuo-liu-cheng.html</link><description>### **1. 为什么前端在浏览器上渲染，不通过前端直接访问后端会有跨域问题？**
+
+**跨域问题产生的原因：**
+
+- 浏览器的同源策略限制。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-jiu-%EF%BC%89%EF%BC%9A-kua-yu-wen-ti-yuan-yin-yu-jie-jue-fang-an-%E3%80%81Nginx-kua-yu-pei-zhi-%E3%80%81SQL%20WITH%20RECURSIVE-yu-fa-%E3%80%81-di-gui-SQL-xie-fa-qu-bie-%E3%80%81Java%20Stream%20API%20toMap-shi-li-jie-xi-%E3%80%81RPC-gai-nian-yu-gong-zuo-liu-cheng.html</guid><pubDate>Sat, 02 Aug 2025 06:30:08 +0000</pubDate></item><item><title>开发日常拾遗（三十八）：Shell启动、Lombok注解、Spring MVC请求映射、Spring Boot参数与Nacos配置、Knife4j与Swagger、MyBatis-Plus Wrapper参数、CORS跨域原理</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-ba-%EF%BC%89%EF%BC%9AShell-qi-dong-%E3%80%81Lombok-zhu-jie-%E3%80%81Spring%20MVC-qing-qiu-ying-she-%E3%80%81Spring%20Boot-can-shu-yu-Nacos-pei-zhi-%E3%80%81Knife4j-yu-Swagger%E3%80%81MyBatis-Plus%20Wrapper-can-shu-%E3%80%81CORS-kua-yu-yuan-li.html</link><description>### 1. `shell:startup` 这个 shell 是什么意思？
+
+`sh` 或 `shell` 是指 **Shell 脚本**，它是一种用来执行系统命令的脚本语言。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-ba-%EF%BC%89%EF%BC%9AShell-qi-dong-%E3%80%81Lombok-zhu-jie-%E3%80%81Spring%20MVC-qing-qiu-ying-she-%E3%80%81Spring%20Boot-can-shu-yu-Nacos-pei-zhi-%E3%80%81Knife4j-yu-Swagger%E3%80%81MyBatis-Plus%20Wrapper-can-shu-%E3%80%81CORS-kua-yu-yuan-li.html</guid><pubDate>Sat, 02 Aug 2025 06:28:28 +0000</pubDate></item><item><title>开发日常拾遗（三十七）：系统命令、数据库排序规则、无符号整型、Logback 漏洞与 Maven packaging</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-qi-%EF%BC%89%EF%BC%9A-xi-tong-ming-ling-%E3%80%81-shu-ju-ku-pai-xu-gui-ze-%E3%80%81-wu-fu-hao-zheng-xing-%E3%80%81Logback%20-lou-dong-yu-%20Maven%20packaging.html</link><description>### **1. 系统命令说明**
+
+- **`systemctl start docker`**
+
+  - 命令用于启动 **Docker** 服务。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-qi-%EF%BC%89%EF%BC%9A-xi-tong-ming-ling-%E3%80%81-shu-ju-ku-pai-xu-gui-ze-%E3%80%81-wu-fu-hao-zheng-xing-%E3%80%81Logback%20-lou-dong-yu-%20Maven%20packaging.html</guid><pubDate>Sat, 02 Aug 2025 06:25:39 +0000</pubDate></item><item><title>开发日常拾遗（三十六）：AtomicInteger、按位与和取余、Spring @ConfigurationProperties 使用详解</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-liu-%EF%BC%89%EF%BC%9AAtomicInteger%E3%80%81-an-wei-yu-he-qu-yu-%E3%80%81Spring%20%40ConfigurationProperties%20-shi-yong-xiang-jie.html</link><description>### **1. AtomicInteger 的相关回忆**
+
+- `AtomicInteger` 简介：
+  - 是 `java.util.concurrent.atomic` 包中的类。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-liu-%EF%BC%89%EF%BC%9AAtomicInteger%E3%80%81-an-wei-yu-he-qu-yu-%E3%80%81Spring%20%40ConfigurationProperties%20-shi-yong-xiang-jie.html</guid><pubDate>Sat, 02 Aug 2025 06:24:50 +0000</pubDate></item><item><title>开发日常拾遗（三十五）：缓存穿透、死锁、CAP定理与分布式事务核心概念</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-wu-%EF%BC%89%EF%BC%9A-huan-cun-chuan-tou-%E3%80%81-si-suo-%E3%80%81CAP-ding-li-yu-fen-bu-shi-shi-wu-he-xin-gai-nian.html</link><description>### **1. 缓存穿透**
+
+
+
+### **和缓存击穿的区别**
+
+1. **缓存穿透**：
+   - **现象**：指查询的数据在缓存和数据库中都不存在，每次请求都会落到数据库，导致数据库压力过大。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-wu-%EF%BC%89%EF%BC%9A-huan-cun-chuan-tou-%E3%80%81-si-suo-%E3%80%81CAP-ding-li-yu-fen-bu-shi-shi-wu-he-xin-gai-nian.html</guid><pubDate>Sat, 02 Aug 2025 06:23:44 +0000</pubDate></item><item><title>开发日常拾遗（三十四）：Docker Redis 操作与 Redis 集群配置</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-si-%EF%BC%89%EF%BC%9ADocker%20Redis%20-cao-zuo-yu-%20Redis%20-ji-qun-pei-zhi.html</link><description>### **一、Docker Compose 文件中的 `version`**
+
+- **问题**：`version: '3.2'` 是部署文件的版本还是 Redis 镜像的版本？
+- 解答：
+  - `version` 指的是 **Docker Compose 文件的语法版本**，与 Redis 镜像的版本无关。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-si-%EF%BC%89%EF%BC%9ADocker%20Redis%20-cao-zuo-yu-%20Redis%20-ji-qun-pei-zhi.html</guid><pubDate>Sat, 02 Aug 2025 06:13:54 +0000</pubDate></item><item><title>开发日常拾遗（三十三）：深度分页原理与 Elasticsearch 聚合规范详解</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-san-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-yuan-li-yu-%20Elasticsearch%20-ju-he-gui-fan-xiang-jie.html</link><description>### **1. 深度分页的含义**
+
+- **定义**：深度分页指的是在分页查询中，随着页码的增大，需要跳过的数据量也随之增加。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-san-%EF%BC%89%EF%BC%9A-shen-du-fen-ye-yuan-li-yu-%20Elasticsearch%20-ju-he-gui-fan-xiang-jie.html</guid><pubDate>Sat, 02 Aug 2025 06:11:56 +0000</pubDate></item><item><title>开发日常拾遗（三十二）：TearDown方法详解、Hutool BeanUtil属性复制原理与Spring Boot测试包结构建议</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-er-%EF%BC%89%EF%BC%9ATearDown-fang-fa-xiang-jie-%E3%80%81Hutool%20BeanUtil-shu-xing-fu-zhi-yuan-li-yu-Spring%20Boot-ce-shi-bao-jie-gou-jian-yi.html</link><description>### **1. 什么是 TearDown 方法？**
+
+- **定义：**
+  `TearDown` 方法在测试框架（如 JUnit）中用于清理资源。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-er-%EF%BC%89%EF%BC%9ATearDown-fang-fa-xiang-jie-%E3%80%81Hutool%20BeanUtil-shu-xing-fu-zhi-yuan-li-yu-Spring%20Boot-ce-shi-bao-jie-gou-jian-yi.html</guid><pubDate>Sat, 02 Aug 2025 06:10:53 +0000</pubDate></item><item><title>开发日常拾遗（三十一）：DSL简介与Elasticsearch Query DSL详解，Java浮点与整数类型区别总结</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-yi-%EF%BC%89%EF%BC%9ADSL-jian-jie-yu-Elasticsearch%20Query%20DSL-xiang-jie-%EF%BC%8CJava-fu-dian-yu-zheng-shu-lei-xing-qu-bie-zong-jie.html</link><description>#### **1. 什么是 DSL？**
+
+- **DSL** 是 **领域特定语言（Domain-Specific Language）** 的简称。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-yi-%EF%BC%89%EF%BC%9ADSL-jian-jie-yu-Elasticsearch%20Query%20DSL-xiang-jie-%EF%BC%8CJava-fu-dian-yu-zheng-shu-lei-xing-qu-bie-zong-jie.html</guid><pubDate>Sat, 02 Aug 2025 06:10:01 +0000</pubDate></item><item><title>开发日常拾遗（三十）：MQ消息兜底方案与延迟消息原理及RabbitMQ死信交换机与TTL实现</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-%EF%BC%89%EF%BC%9AMQ-xiao-xi-dou-di-fang-an-yu-yan-chi-xiao-xi-yuan-li-ji-RabbitMQ-si-xin-jiao-huan-ji-yu-TTL-shi-xian.html</link><description>### 1. 兜底方案
+
+尽管通过多种机制提高了消息的可靠性，仍无法保证MQ消息100%的成功传递。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-shi-%EF%BC%89%EF%BC%9AMQ-xiao-xi-dou-di-fang-an-yu-yan-chi-xiao-xi-yuan-li-ji-RabbitMQ-si-xin-jiao-huan-ji-yu-TTL-shi-xian.html</guid><pubDate>Sat, 02 Aug 2025 06:09:13 +0000</pubDate></item><item><title>开发日常拾遗（二十九）：Docker镜像删，Nacos配置，RabbitMQ确认回调，错误日志，消息持久化，内存溢出，Spring注入与@PostConstruct，字节转字符串</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-jiu-%EF%BC%89%EF%BC%9ADocker-jing-xiang-shan-%EF%BC%8CNacos-pei-zhi-%EF%BC%8CRabbitMQ-que-ren-hui-diao-%EF%BC%8C-cuo-wu-ri-zhi-%EF%BC%8C-xiao-xi-chi-jiu-hua-%EF%BC%8C-nei-cun-yi-chu-%EF%BC%8CSpring-zhu-ru-yu-%40PostConstruct%EF%BC%8C-zi-jie-zhuan-zi-fu-chuan.html</link><description>### 1. **Docker 删除镜像**
+
+- **问题**: 如何删除 Docker 中的镜像？
+
+- 解答:
+
+  - 使用以下命令删除镜像：
+
+    ```bash
+    docker rmi &lt;image_id&gt;
+    ```
+
+  - 如果要删除多个镜像：
+
+    ```bash
+    docker rmi &lt;image_id_1&gt; &lt;image_id_2&gt;
+    ```
+
+  - 如果需要强制删除（即使镜像正在使用中），可以使用：
+
+    ```bash
+    docker rmi -f &lt;image_id&gt;
+    ```
+
+------
+
+### 2. **Nacos 配置问题**
+
+- **问题**: Nacos 配置格式是否正确？
+- 解答:
+  - 配置文件的格式是 YAML，其中有环境变量的引用，比如 `${hm.rabbitmq.host:192.168.142.128}`，这是允许使用的格式，它允许在配置文件中设置默认值。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-jiu-%EF%BC%89%EF%BC%9ADocker-jing-xiang-shan-%EF%BC%8CNacos-pei-zhi-%EF%BC%8CRabbitMQ-que-ren-hui-diao-%EF%BC%8C-cuo-wu-ri-zhi-%EF%BC%8C-xiao-xi-chi-jiu-hua-%EF%BC%8C-nei-cun-yi-chu-%EF%BC%8CSpring-zhu-ru-yu-%40PostConstruct%EF%BC%8C-zi-jie-zhuan-zi-fu-chuan.html</guid><pubDate>Sat, 02 Aug 2025 06:08:07 +0000</pubDate></item><item><title>开发日常拾遗（二十八）：Spring Boot JmxAutoConfiguration异常排查、日志占位符用法、Spring Cloud @RefreshScope热更新与依赖版本管理</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-ba-%EF%BC%89%EF%BC%9ASpring%20Boot%20JmxAutoConfiguration-yi-chang-pai-cha-%E3%80%81-ri-zhi-zhan-wei-fu-yong-fa-%E3%80%81Spring%20Cloud%20%40RefreshScope-re-geng-xin-yu-yi-lai-ban-ben-guan-li.html</link><description>## **1. Spring Boot 自动配置中的 `JmxAutoConfiguration` 错误**
+
+### **问题：**
+
+日志报错如下：
+
+```vbnet
+java.lang.IllegalStateException: Error processing condition on org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration.mbeanExporter
+```
+
+这种错误通常与 **Spring Boot 自动配置** 处理条件时出错有关，特别是 `JmxAutoConfiguration` 的 `mbeanExporter` 配置没有正确处理。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-ba-%EF%BC%89%EF%BC%9ASpring%20Boot%20JmxAutoConfiguration-yi-chang-pai-cha-%E3%80%81-ri-zhi-zhan-wei-fu-yong-fa-%E3%80%81Spring%20Cloud%20%40RefreshScope-re-geng-xin-yu-yi-lai-ban-ben-guan-li.html</guid><pubDate>Sat, 02 Aug 2025 06:05:56 +0000</pubDate></item><item><title>开发日常拾遗（二十七）：Linux rm命令参数、Docker RabbitMQ网络机制、队列状态解析及Spring Fanout Exchange Bean注入规则</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-qi-%EF%BC%89%EF%BC%9ALinux%20rm-ming-ling-can-shu-%E3%80%81Docker%20RabbitMQ-wang-luo-ji-zhi-%E3%80%81-dui-lie-zhuang-tai-jie-xi-ji-Spring%20Fanout%20Exchange%20Bean-zhu-ru-gui-ze.html</link><description>#### 1. **命令参数的含义**
+
+##### 问题：
+
+`rm -rf *.tar` 中 `-rf` 的含义是什么？
+
+##### 解答：
+
+- **`-r`**：递归删除目录及其内容。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-qi-%EF%BC%89%EF%BC%9ALinux%20rm-ming-ling-can-shu-%E3%80%81Docker%20RabbitMQ-wang-luo-ji-zhi-%E3%80%81-dui-lie-zhuang-tai-jie-xi-ji-Spring%20Fanout%20Exchange%20Bean-zhu-ru-gui-ze.html</guid><pubDate>Sat, 02 Aug 2025 06:04:52 +0000</pubDate></item><item><title>开发日常拾遗（二十六）：Java线程休眠、JMeter乱码解决、CSV编码配置与XA分布式事务历史解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-liu-%EF%BC%89%EF%BC%9AJava-xian-cheng-xiu-mian-%E3%80%81JMeter-luan-ma-jie-jue-%E3%80%81CSV-bian-ma-pei-zhi-yu-XA-fen-bu-shi-shi-wu-li-shi-jie-xi.html</link><description>#### **1. 线程休眠 0.5 秒的方法**
+
+在 Java 中，让线程休眠（暂停执行）**0.5秒**可以使用 `Thread.sleep` 方法。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-liu-%EF%BC%89%EF%BC%9AJava-xian-cheng-xiu-mian-%E3%80%81JMeter-luan-ma-jie-jue-%E3%80%81CSV-bian-ma-pei-zhi-yu-XA-fen-bu-shi-shi-wu-li-shi-jie-xi.html</guid><pubDate>Sat, 02 Aug 2025 06:04:05 +0000</pubDate></item><item><title>开发日常拾遗（二十五）：Docker MySQL自启、concat用法、SDK定义、本地终端快捷、Sentinel及QPS含义与IDEA日志换行设置</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html</link><description># 综合笔记：从Spring MySQL连接问题到QPS解释
+
+## **1. Docker容器中MySQL服务的开机自启**
+
+### 方法：
+
+在 Docker 中，设置 MySQL 容器开机自启可以通过以下方式实现：
+
+1. 使用 `--restart` 参数：
+
+   ```bash
+   docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=123456 -d --restart always mysql:latest
+   ```
+
+   - `--restart always`：表示无论容器是否正常退出，都自动重启。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-wu-%EF%BC%89%EF%BC%9ADocker%20MySQL-zi-qi-%E3%80%81concat-yong-fa-%E3%80%81SDK-ding-yi-%E3%80%81-ben-di-zhong-duan-kuai-jie-%E3%80%81Sentinel-ji-QPS-han-yi-yu-IDEA-ri-zhi-huan-xing-she-zhi.html</guid><pubDate>Sat, 02 Aug 2025 06:02:45 +0000</pubDate></item><item><title>开发日常拾遗（二十四）：Spring Boot端口，RestTemplate，IDEA类层次，AntPath，Bean排查，Filter与Interceptor，WebFlux，spring.factories，MVC判断，依赖，starter-web</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-si-%EF%BC%89%EF%BC%9ASpring%20Boot-duan-kou-%EF%BC%8CRestTemplate%EF%BC%8CIDEA-lei-ceng-ci-%EF%BC%8CAntPath%EF%BC%8CBean-pai-cha-%EF%BC%8CFilter-yu-Interceptor%EF%BC%8CWebFlux%EF%BC%8Cspring.factories%EF%BC%8CMVC-pan-duan-%EF%BC%8C-yi-lai-%EF%BC%8Cstarter-web.html</link><description>### **1. -Dserver.port 参数问题**
+
+**问题：** 在 IDEA 的运行配置中，如何指定端口参数？
+
+1. 在运行配置的 '程序参数 (Program Arguments)' 中指定：
+
+   ```reStructuredText
+   --server.port=8083
+   ```
+
+2. 在运行配置的 '虚拟机选项 (VM Options)' 中使用：
+
+   ```reStructuredText
+   -Dserver.port=8083
+   ```
+
+**总结：**
+
+- `--server.port` 是 Spring Boot 的参数，通过程序参数指定。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-si-%EF%BC%89%EF%BC%9ASpring%20Boot-duan-kou-%EF%BC%8CRestTemplate%EF%BC%8CIDEA-lei-ceng-ci-%EF%BC%8CAntPath%EF%BC%8CBean-pai-cha-%EF%BC%8CFilter-yu-Interceptor%EF%BC%8CWebFlux%EF%BC%8Cspring.factories%EF%BC%8CMVC-pan-duan-%EF%BC%8C-yi-lai-%EF%BC%8Cstarter-web.html</guid><pubDate>Sat, 02 Aug 2025 06:01:20 +0000</pubDate></item><item><title>开发日常拾遗（二十三）：Spring Cloud 与 Nacos 服务映射解析及 @FeignClient 注解原理透析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-san-%EF%BC%89%EF%BC%9ASpring%20Cloud%20-yu-%20Nacos%20-fu-wu-ying-she-jie-xi-ji-%20%40FeignClient%20-zhu-jie-yuan-li-tou-xi.html</link><description>### 1. Spring Cloud 与 Nacos 配置、服务映射问题分析
+
+#### 1. **问题背景与初步分析**
+
+- 遇到的问题是在本地 Spring Cloud 应用中，服务连接到 Nacos 时，发现 Nacos 服务在虚拟机上运行，但在日志中显示服务的 IP 地址为 `192.168.142.1`，而实际上该服务是在本地运行的。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-san-%EF%BC%89%EF%BC%9ASpring%20Cloud%20-yu-%20Nacos%20-fu-wu-ying-she-jie-xi-ji-%20%40FeignClient%20-zhu-jie-yuan-li-tou-xi.html</guid><pubDate>Sat, 02 Aug 2025 05:55:42 +0000</pubDate></item><item><title>开发日常拾遗（二十二）：Docker 拉取镜像与运行 Nacos 容器常见问题</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-er-%EF%BC%89%EF%BC%9ADocker%20-la-qu-jing-xiang-yu-yun-xing-%20Nacos%20-rong-qi-chang-jian-wen-ti.html</link><description>### **Docker 镜像下载和运行 nacos 容器的相关问题**
+
+### **1. Docker 中如何下载镜像**
+
+- **基本命令**：
+
+  ```bash
+  docker pull &lt;镜像名&gt;:&lt;标签&gt;
+  ```
+
+  - 如果省略标签，默认下载 `latest` 版本。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-er-%EF%BC%89%EF%BC%9ADocker%20-la-qu-jing-xiang-yu-yun-xing-%20Nacos%20-rong-qi-chang-jian-wen-ti.html</guid><pubDate>Sat, 02 Aug 2025 05:52:47 +0000</pubDate></item><item><title>开发日常拾遗（二十一）：Linux 基础命令、Docker 操作及 MySQL 容器实战笔记</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-yi-%EF%BC%89%EF%BC%9ALinux%20-ji-chu-ming-ling-%E3%80%81Docker%20-cao-zuo-ji-%20MySQL%20-rong-qi-shi-zhan-bi-ji.html</link><description>### **1. Linux 中的 `.`、`./` 和 `/` 的含义**
+
+- **`.`（当前目录）**：
+
+  - - 表示当前目录，是一个相对路径标识。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-yi-%EF%BC%89%EF%BC%9ALinux%20-ji-chu-ming-ling-%E3%80%81Docker%20-cao-zuo-ji-%20MySQL%20-rong-qi-shi-zhan-bi-ji.html</guid><pubDate>Sat, 02 Aug 2025 05:51:24 +0000</pubDate></item><item><title>开发日常拾遗（二十）：虚拟机与宿主机概念、MySQL Docker配置及常用命令</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-%EF%BC%89%EF%BC%9A-xu-ni-ji-yu-su-zhu-ji-gai-nian-%E3%80%81MySQL%20Docker-pei-zhi-ji-chang-yong-ming-ling.html</link><description>### 1. **虚拟机和宿主机概念**
+
+- **宿主机（Host Machine）**：是物理机器，运行虚拟化软件的机器。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-shi-%EF%BC%89%EF%BC%9A-xu-ni-ji-yu-su-zhu-ji-gai-nian-%E3%80%81MySQL%20Docker-pei-zhi-ji-chang-yong-ming-ling.html</guid><pubDate>Fri, 01 Aug 2025 10:39:54 +0000</pubDate></item><item><title>开发日常拾遗（十九）：Java Lambda引用详解、MyBatis-Plus查询行为、分页配置与属性复制</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-jiu-%EF%BC%89%EF%BC%9AJava%20Lambda-yin-yong-xiang-jie-%E3%80%81MyBatis-Plus-cha-xun-xing-wei-%E3%80%81-fen-ye-pei-zhi-yu-shu-xing-fu-zhi.html</link><description>### **1. 关于 `lambdaQuery()` 的参数引用问题**
+
+- **问题描述**： `lambdaQuery().like(userName != null &amp;&amp; userName != '', UserQuery::getName, userName)` 中，`UserQuery::getName` 报错，提示无法从 static 上下文引用非 static 方法。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-jiu-%EF%BC%89%EF%BC%9AJava%20Lambda-yin-yong-xiang-jie-%E3%80%81MyBatis-Plus-cha-xun-xing-wei-%E3%80%81-fen-ye-pei-zhi-yu-shu-xing-fu-zhi.html</guid><pubDate>Fri, 01 Aug 2025 10:38:23 +0000</pubDate></item><item><title>开发日常拾遗（十八）：Lombok构造函数注入详解、@Autowired机制、方法引用、MyBatis-Plus参数说明及ID生成机制</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-ba-%EF%BC%89%EF%BC%9ALombok-gou-zao-han-shu-zhu-ru-xiang-jie-%E3%80%81%40Autowired-ji-zhi-%E3%80%81-fang-fa-yin-yong-%E3%80%81MyBatis-Plus-can-shu-shuo-ming-ji-ID-sheng-cheng-ji-zhi.html</link><description>#### 1. **`@RequiredArgsConstructor` 的作用**
+
+- **功能**：`@RequiredArgsConstructor` 自动生成只包含 `final` 修饰字段的构造函数。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-ba-%EF%BC%89%EF%BC%9ALombok-gou-zao-han-shu-zhu-ru-xiang-jie-%E3%80%81%40Autowired-ji-zhi-%E3%80%81-fang-fa-yin-yong-%E3%80%81MyBatis-Plus-can-shu-shuo-ming-ji-ID-sheng-cheng-ji-zhi.html</guid><pubDate>Fri, 01 Aug 2025 10:35:20 +0000</pubDate></item><item><title>开发日常拾遗（十七）：数据库DDL及分类、Mermaid语言、favicon及.bak文件含义、VSCode与IDEA配置、MySQL表结构设计Prompt示例</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-qi-%EF%BC%89%EF%BC%9A-shu-ju-ku-DDL-ji-fen-lei-%E3%80%81Mermaid-yu-yan-%E3%80%81favicon-ji-.bak-wen-jian-han-yi-%E3%80%81VSCode-yu-IDEA-pei-zhi-%E3%80%81MySQL-biao-jie-gou-she-ji-Prompt-shi-li.html</link><description>### 1. **给出表结构的DDL，这个DDL是什么？**
+
+- **DDL (Data Definition Language)** 是数据库定义语言，主要用于创建、修改、删除数据库对象如表、视图、索引等的结构。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-qi-%EF%BC%89%EF%BC%9A-shu-ju-ku-DDL-ji-fen-lei-%E3%80%81Mermaid-yu-yan-%E3%80%81favicon-ji-.bak-wen-jian-han-yi-%E3%80%81VSCode-yu-IDEA-pei-zhi-%E3%80%81MySQL-biao-jie-gou-she-ji-Prompt-shi-li.html</guid><pubDate>Fri, 01 Aug 2025 10:33:35 +0000</pubDate></item><item><title>开发日常拾遗（十六）：浏览器缓存、XSS防护、i18n 国际化、项目启动 Banner、主子表、Vite 错误与 Vue 跳转问题</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-liu-%EF%BC%89%EF%BC%9A-liu-lan-qi-huan-cun-%E3%80%81XSS-fang-hu-%E3%80%81i18n%20-guo-ji-hua-%E3%80%81-xiang-mu-qi-dong-%20Banner%E3%80%81-zhu-zi-biao-%E3%80%81Vite%20-cuo-wu-yu-%20Vue%20-tiao-zhuan-wen-ti.html</link><description>### 1. 项目中浏览器缓存问题
+
+- **问题**：浏览器缓存导致无法直接显示最新项目页面（如登录页）。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-liu-%EF%BC%89%EF%BC%9A-liu-lan-qi-huan-cun-%E3%80%81XSS-fang-hu-%E3%80%81i18n%20-guo-ji-hua-%E3%80%81-xiang-mu-qi-dong-%20Banner%E3%80%81-zhu-zi-biao-%E3%80%81Vite%20-cuo-wu-yu-%20Vue%20-tiao-zhuan-wen-ti.html</guid><pubDate>Fri, 01 Aug 2025 10:32:02 +0000</pubDate></item><item><title>开发日常拾遗（十五）：MyBatis ORM思想、Redis密码取消、RBAC权限控制与若依常用功能</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-wu-%EF%BC%89%EF%BC%9AMyBatis%20ORM-si-xiang-%E3%80%81Redis-mi-ma-qu-xiao-%E3%80%81RBAC-quan-xian-kong-zhi-yu-ruo-yi-chang-yong-gong-neng.html</link><description>### **1. MyBatis 的 ORM 思想**
+
+- **MyBatis** 是一个基于 **SQL 映射** 的框架，允许开发者手动编写 SQL 查询，并将查询结果映射到 Java 对象。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-wu-%EF%BC%89%EF%BC%9AMyBatis%20ORM-si-xiang-%E3%80%81Redis-mi-ma-qu-xiao-%E3%80%81RBAC-quan-xian-kong-zhi-yu-ruo-yi-chang-yong-gong-neng.html</guid><pubDate>Fri, 01 Aug 2025 10:30:45 +0000</pubDate></item><item><title>开发日常拾遗（十四）：NVM安装与使用、npm管理、JavaScript相等比较及前端代码结构梳理</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-si-%EF%BC%89%EF%BC%9ANVM-an-zhuang-yu-shi-yong-%E3%80%81npm-guan-li-%E3%80%81JavaScript-xiang-deng-bi-jiao-ji-qian-duan-dai-ma-jie-gou-shu-li.html</link><description>### 1. **NVM 安装与使用**
+
+- **NVM (Node Version Manager)** 是一个用于管理 Node.js 版本的工具，可以让你在不同的 Node.js 版本之间切换，安装新版本或卸载旧版本。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-si-%EF%BC%89%EF%BC%9ANVM-an-zhuang-yu-shi-yong-%E3%80%81npm-guan-li-%E3%80%81JavaScript-xiang-deng-bi-jiao-ji-qian-duan-dai-ma-jie-gou-shu-li.html</guid><pubDate>Fri, 01 Aug 2025 10:29:47 +0000</pubDate></item><item><title>开发日常拾遗（十三）：NPM全局安装、PowerShell执行策略、ESLint配置、TypeScript类属性与方法、异步请求识别</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-san-%EF%BC%89%EF%BC%9ANPM-quan-ju-an-zhuang-%E3%80%81PowerShell-zhi-xing-ce-lve-%E3%80%81ESLint-pei-zhi-%E3%80%81TypeScript-lei-shu-xing-yu-fang-fa-%E3%80%81-yi-bu-qing-qiu-shi-bie.html</link><description>### 1. **NPM 全局安装的问题**
+
+- **问题描述**
+  在 VSCode 终端中执行 `npm install -g typescript` 后，运行 `tsc -v` 提示 `'tsc' 不是内部或外部命令，也不是可运行的程序或批处理文件`。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-san-%EF%BC%89%EF%BC%9ANPM-quan-ju-an-zhuang-%E3%80%81PowerShell-zhi-xing-ce-lve-%E3%80%81ESLint-pei-zhi-%E3%80%81TypeScript-lei-shu-xing-yu-fang-fa-%E3%80%81-yi-bu-qing-qiu-shi-bie.html</guid><pubDate>Fri, 01 Aug 2025 10:28:34 +0000</pubDate></item><item><title>开发日常拾遗（十二）：Vue.js 基础笔记之组件结构、数据绑定、事件处理、条件渲染、HTTP 请求及路由</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-er-%EF%BC%89%EF%BC%9AVue.js%20-ji-chu-bi-ji-zhi-zu-jian-jie-gou-%E3%80%81-shu-ju-bang-ding-%E3%80%81-shi-jian-chu-li-%E3%80%81-tiao-jian-xuan-ran-%E3%80%81HTTP%20-qing-qiu-ji-lu-you.html</link><description>### Vue.js 基础笔记
+
+#### **1. Vue 组件**
+
+Vue 组件由三部分组成：
+
+- **template**: 用于定义组件的结构（HTML）。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-er-%EF%BC%89%EF%BC%9AVue.js%20-ji-chu-bi-ji-zhi-zu-jian-jie-gou-%E3%80%81-shu-ju-bang-ding-%E3%80%81-shi-jian-chu-li-%E3%80%81-tiao-jian-xuan-ran-%E3%80%81HTTP%20-qing-qiu-ji-lu-you.html</guid><pubDate>Fri, 01 Aug 2025 10:26:49 +0000</pubDate></item><item><title>开发日常拾遗（十一）：Java 泛型、Stream map 操作、reduce 累积、类型转换与 Optional 实用场景</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-yi-%EF%BC%89%EF%BC%9AJava%20-fan-xing-%E3%80%81Stream%20map%20-cao-zuo-%E3%80%81reduce%20-lei-ji-%E3%80%81-lei-xing-zhuan-huan-yu-%20Optional%20-shi-yong-chang-jing.html</link><description>### 1. **Java Stream API 中的 `map` 方法**
+
+- **`map` 方法**：用于将流中的每个元素通过一个指定的转换函数映射到另一个对象，生成一个新的流。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-yi-%EF%BC%89%EF%BC%9AJava%20-fan-xing-%E3%80%81Stream%20map%20-cao-zuo-%E3%80%81reduce%20-lei-ji-%E3%80%81-lei-xing-zhuan-huan-yu-%20Optional%20-shi-yong-chang-jing.html</guid><pubDate>Fri, 01 Aug 2025 10:21:08 +0000</pubDate></item><item><title>开发日常拾遗（十）：REST 返回封装、日期参数注解、隐式类型转换、动态 SQL 实战技巧</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-%EF%BC%89%EF%BC%9AREST%20-fan-hui-feng-zhuang-%E3%80%81-ri-qi-can-shu-zhu-jie-%E3%80%81-yin-shi-lei-xing-zhuan-huan-%E3%80%81-dong-tai-%20SQL%20-shi-zhan-ji-qiao.html</link><description>### **1. REST API 的返回数据**
+
+- REST API 返回数据可以形象地比喻为“快递包裹”：
+  - **快递内容**：你实际需要的业务数据（例如 JSON 格式的对象）。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-shi-%EF%BC%89%EF%BC%9AREST%20-fan-hui-feng-zhuang-%E3%80%81-ri-qi-can-shu-zhu-jie-%E3%80%81-yin-shi-lei-xing-zhuan-huan-%E3%80%81-dong-tai-%20SQL%20-shi-zhan-ji-qiao.html</guid><pubDate>Fri, 01 Aug 2025 10:19:43 +0000</pubDate></item><item><title>开发日常拾遗（九）：Serializable 与 Lombok、@PathVariable 使用详解、SQL &amp; Redis 错误排查、参数注解对比分析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-jiu-%EF%BC%89%EF%BC%9ASerializable%20-yu-%20Lombok%E3%80%81%40PathVariable%20-shi-yong-xiang-jie-%E3%80%81SQL%20%26%20Redis%20-cuo-wu-pai-cha-%E3%80%81-can-shu-zhu-jie-dui-bi-fen-xi.html</link><description>### 1. Serializable 和 Lombok的关系
+
+- 实现 `Serializable` 接口和 Lombok 没有直接关系。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-jiu-%EF%BC%89%EF%BC%9ASerializable%20-yu-%20Lombok%E3%80%81%40PathVariable%20-shi-yong-xiang-jie-%E3%80%81SQL%20%26%20Redis%20-cuo-wu-pai-cha-%E3%80%81-can-shu-zhu-jie-dui-bi-fen-xi.html</guid><pubDate>Fri, 01 Aug 2025 10:18:07 +0000</pubDate></item><item><title>开发日常拾遗（八）：TCP连接趣味类比、Spring定时任务踩坑、安装权限报错、CMD技巧与代理机制精讲</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-ba-%EF%BC%89%EF%BC%9ATCP-lian-jie-qu-wei-lei-bi-%E3%80%81Spring-ding-shi-ren-wu-cai-keng-%E3%80%81-an-zhuang-quan-xian-bao-cuo-%E3%80%81CMD-ji-qiao-yu-dai-li-ji-zhi-jing-jiang.html</link><description>#### **一、TCP连接与生活比喻**
+
+#### **1. 什么是 TCP 连接？**
+
+- TCP（传输控制协议）是一种可靠的、面向连接的通信协议。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-ba-%EF%BC%89%EF%BC%9ATCP-lian-jie-qu-wei-lei-bi-%E3%80%81Spring-ding-shi-ren-wu-cai-keng-%E3%80%81-an-zhuang-quan-xian-bao-cuo-%E3%80%81CMD-ji-qiao-yu-dai-li-ji-zhi-jing-jiang.html</guid><pubDate>Fri, 01 Aug 2025 10:16:56 +0000</pubDate></item><item><title>开发日常拾遗（七）：@JsonFormat 注解机制、全局时间格式配置与 Jackson 时间映射小技巧</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-qi-%EF%BC%89%EF%BC%9A%40JsonFormat%20-zhu-jie-ji-zhi-%E3%80%81-quan-ju-shi-jian-ge-shi-pei-zhi-yu-%20Jackson%20-shi-jian-ying-she-xiao-ji-qiao.html</link><description>### **1. `@JsonFormat` 注解的使用**
+
+- **作用：** `@JsonFormat` 用于指定 JSON 序列化和反序列化时的格式。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-qi-%EF%BC%89%EF%BC%9A%40JsonFormat%20-zhu-jie-ji-zhi-%E3%80%81-quan-ju-shi-jian-ge-shi-pei-zhi-yu-%20Jackson%20-shi-jian-ying-she-xiao-ji-qiao.html</guid><pubDate>Fri, 01 Aug 2025 05:54:12 +0000</pubDate></item><item><title>开发日常拾遗（六）：@CachePut 缓存机制解析、Redis 查询实践、JSON 映射与异常排查小技巧</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-liu-%EF%BC%89%EF%BC%9A%40CachePut%20-huan-cun-ji-zhi-jie-xi-%E3%80%81Redis%20-cha-xun-shi-jian-%E3%80%81JSON%20-ying-she-yu-yi-chang-pai-cha-xiao-ji-qiao.html</link><description>### 1. **Spring Cache 与 `@CachePut` 注解**
+
+- **`@CachePut` 注解** 用于方法执行后，将方法的返回值放入缓存中，而不是从缓存中获取数据。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-liu-%EF%BC%89%EF%BC%9A%40CachePut%20-huan-cun-ji-zhi-jie-xi-%E3%80%81Redis%20-cha-xun-shi-jian-%E3%80%81JSON%20-ying-she-yu-yi-chang-pai-cha-xiao-ji-qiao.html</guid><pubDate>Fri, 01 Aug 2025 05:49:19 +0000</pubDate></item><item><title>开发日常拾遗（五）：InputStream打印技巧、微信小程序授权弹窗、Nginx代理、FastJSON解析差异及类型转换陷阱</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-%EF%BC%89%EF%BC%9AInputStream-da-yin-ji-qiao-%E3%80%81-wei-xin-xiao-cheng-xu-shou-quan-dan-chuang-%E3%80%81Nginx-dai-li-%E3%80%81FastJSON-jie-xi-cha-yi-ji-lei-xing-zhuan-huan-xian-jing.html</link><description>#### **1. 打印 `InputStream` 的内容**
+
+**问题背景：**
+在代码中获取 HTTP 响应内容时，想打印 `InputStream` 内容，但直接打印流对象只输出其地址信息。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-wu-%EF%BC%89%EF%BC%9AInputStream-da-yin-ji-qiao-%E3%80%81-wei-xin-xiao-cheng-xu-shou-quan-dan-chuang-%E3%80%81Nginx-dai-li-%E3%80%81FastJSON-jie-xi-cha-yi-ji-lei-xing-zhuan-huan-xian-jing.html</guid><pubDate>Fri, 01 Aug 2025 05:48:15 +0000</pubDate></item><item><title>开发日常拾遗（四）：static 机制详解与 Spring Redis 实战应用</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-%EF%BC%89%EF%BC%9Astatic%20-ji-zhi-xiang-jie-yu-%20Spring%20Redis%20-shi-zhan-ying-yong.html</link><description>#### **一、静态变量与静态方法的理解**
+
+##### 1. **静态（`static`）成员的定义和访问**：
+
+- **静态变量（`static` field）** 和 **静态方法（`static` method）** 是属于 **类** 本身的，而不是属于 **类的实例**。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-si-%EF%BC%89%EF%BC%9Astatic%20-ji-zhi-xiang-jie-yu-%20Spring%20Redis%20-shi-zhan-ying-yong.html</guid><pubDate>Fri, 01 Aug 2025 05:46:41 +0000</pubDate></item><item><title>开发日常拾遗（三）：事务管理与MyBatis高级配置</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-%EF%BC%89%EF%BC%9A-shi-wu-guan-li-yu-MyBatis-gao-ji-pei-zhi.html</link><description>#### 1. **事务配置及使用**
+
+- **事务注解的使用**：
+  使用 `@Transactional` 注解来标识需要进行事务管理的方法或类，通常是在 **service 层**。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-san-%EF%BC%89%EF%BC%9A-shi-wu-guan-li-yu-MyBatis-gao-ji-pei-zhi.html</guid><pubDate>Fri, 01 Aug 2025 03:55:16 +0000</pubDate></item><item><title>开发日常拾遗（二）：Spring AOP、JWT 与动态代理核心要点解析</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-%EF%BC%89%EF%BC%9ASpring%20AOP%E3%80%81JWT%20-yu-dong-tai-dai-li-he-xin-yao-dian-jie-xi.html</link><description>#### **1. AOP（面向切面编程）**
+
+- **切面表达式**：
+  - AOP 中的切点表达式格式为：`execution([修饰符模式] 返回类型模式 [声明类型模式] 方法名模式(参数模式) [throws模式])`。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-er-%EF%BC%89%EF%BC%9ASpring%20AOP%E3%80%81JWT%20-yu-dong-tai-dai-li-he-xin-yao-dian-jie-xi.html</guid><pubDate>Fri, 01 Aug 2025 03:53:43 +0000</pubDate></item><item><title>开发日常拾遗（一）：Spring常见配置问题与Java基础碎片整理</title><link>https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-yi-%EF%BC%89%EF%BC%9ASpring-chang-jian-pei-zhi-wen-ti-yu-Java-ji-chu-sui-pian-zheng-li.html</link><description>#### **1. 静态资源加载路径**
+
+- **问题**：`addResourceHandlers` 方法配置的静态资源路径（如 `classpath:/META-INF/resources/`）在项目中找不到。</description><guid isPermaLink="true">https://SaVeop.github.io/post/kai-fa-ri-chang-shi-yi-%EF%BC%88-yi-%EF%BC%89%EF%BC%9ASpring-chang-jian-pei-zhi-wen-ti-yu-Java-ji-chu-sui-pian-zheng-li.html</guid><pubDate>Fri, 01 Aug 2025 03:21:34 +0000</pubDate></item></channel></rss>

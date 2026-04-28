@@ -1,0 +1,331 @@
+### 1. **Java Stream API 中的 `map` 方法**
+
+- **`map` 方法**：用于将流中的每个元素通过一个指定的转换函数映射到另一个对象，生成一个新的流。`map` 是一个 **中间操作**，它会返回一个新的流，允许你对流中的元素进行修改或转换。
+
+  ```java
+  List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+  List<Integer> squares = numbers.stream()
+                                 .map(n -> n * n)  // 每个元素映射为它的平方
+                                 .collect(Collectors.toList());
+  System.out.println(squares);  // 输出 [1, 4, 9, 16, 25]
+  ```
+
+- **方法引用与 `map`**：方法引用是一种更简洁的写法，它是 `lambda` 表达式的简化形式。例如，`Integer::intValue` 是对 `Integer` 类中的 `intValue()` 方法的引用，可以替代 `n -> n.intValue()`。它使代码更加简洁和可读。
+
+  ```java
+  List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+  List<Integer> result = numbers.stream()
+                                .map(Integer::intValue)  // 使用方法引用
+                                .collect(Collectors.toList());
+  ```
+
+- **`map` 方法中的类型**：`map` 的参数需要是一个函数，该函数接收流中元素的类型并返回新的类型。这个转换操作可以是任何你定义的处理逻辑，常见的如类型转换、元素计算等。
+
+------
+
+### 2. **泛型和 `map` 的类型参数**
+
+- **`map(Integer::intValue)` 的使用**：在 `map` 中，你需要明确给出转换的类型。例如，如果流中是 `Integer` 类型，而你想转换为 `int` 类型，`Integer::intValue` 就是一个方法引用，表示将 `Integer` 对象转换为它的基本数据类型 `int`。
+- **`List<T>` 与 `List<?>` 的区别**：
+  - `List<T>` 是指定类型的泛型，可以存储具体类型的数据。
+  - `List<?>` 是通配符类型，表示可以存储任何类型的数据，但你不能向其添加元素，除了 `null`。它用于当你只关心类型而不关心具体类型的场景。
+  - `List<Object>` 是明确指定存储 `Object` 类型数据的列表，可以向其中添加任何类型的对象，因为所有的类都继承自 `Object`。
+
+------
+
+### 3. **`HashMap` 中的键唯一性**
+
+- **键唯一性**：`HashMap` 中的键是唯一的。这意味着每个键只能对应一个值。如果你插入相同的键，新的值会覆盖旧的值。`HashMap` 通过 `hashCode()` 和 `equals()` 方法来判断键是否相同。
+
+  ```java
+  HashMap<Integer, String> map = new HashMap<>();
+  map.put(1, "One");
+  map.put(2, "Two");
+  map.put(2, "TWO");  // 键 2 被更新
+  System.out.println(map);  // 输出: {1=One, 2=TWO}
+  ```
+
+- **为什么键是唯一的**：`HashMap` 使用哈希表来存储键值对。哈希表是通过键的 `hashCode()` 来确定存储位置的，因此它要求键是唯一的。如果插入相同的键，旧的值会被替换。
+
+------
+
+### 4. **`reduce` 与 `mapToInt` 方法的差异和使用**
+
+- **`mapToInt(Integer::intValue)`**：是一个将 `Integer` 类型转换为基本数据类型 `int` 的操作，返回一个 `IntStream`。它是 `map` 操作的一种变体，用于将元素转换为基本类型。
+
+  ```java
+  List<Integer> numbers = List.of(1, 2, 3, 4, 5);
+  int sum = numbers.stream()
+                   .mapToInt(Integer::intValue)  // 转换为 int
+                   .sum();
+  System.out.println(sum);  // 输出 15
+  ```
+
+- **`reduce(Integer::sum)`**：`reduce` 是一个终端操作，用于将流中的元素进行累积操作。`reduce(Integer::sum)` 会将流中的所有元素通过加法操作相加，最终返回一个 `Optional<Integer>` 类型的结果。
+
+  ```java
+  int sum = numbers.stream()
+                   .reduce(Integer::sum)
+                   .orElse(0);  // 如果流为空，则返回 0
+  System.out.println(sum);  // 输出 15
+  ```
+
+- **`reduce(0, Integer::sum)`**：这是一种带初始值的 `reduce` 操作。`0` 作为初始值加入到流的计算中。如果流为空，结果就是初始值 `0`。这比 `reduce(Integer::sum)` 更加安全，因为没有 `Optional` 的包裹。
+
+  ```java
+  int sum = numbers.stream()
+                   .reduce(0, Integer::sum);  // 带初始值
+  System.out.println(sum);  // 输出 15
+  ```
+
+------
+
+### 5. **数值转换与自动拆箱**
+
+- **自动拆箱与装箱**：Java 中的包装类（如 `Integer`, `Double`）和基本数据类型（如 `int`, `double`）之间存在自动拆箱（从包装类到基本类型）和装箱（从基本类型到包装类）转换。当你将 `Integer` 转为 `int` 时，会发生拆箱；而当将 `int` 转为 `Integer` 时，会发生装箱。
+
+- **避免数据丢失**：在进行浮点运算时，如果没有强制转换，可能会丢失精度。例如，整数相除结果是整数，若想保留小数，需强制转换为 `double` 类型。
+
+  ```java
+  Double orderCompletionRate = (double) validOrderCount / totalOrderCount;
+  ```
+
+  通过将分子转换为 `double`，结果不会丢失小数部分。
+
+------
+
+### 6. **`Optional` 类型的处理**
+
+- **`Optional` 的使用**：`Optional` 是一个容器对象，用于避免 `NullPointerException`。它可以表示一个可能为空的值，常用于方法返回值的包装。
+
+  ```java
+  Optional<Integer> result = numbers.stream()
+                                    .reduce(Integer::sum);
+  Integer sum = result.orElse(0);  // 如果 result 为空，则返回 0
+  System.out.println(sum);  // 输出 15
+  ```
+
+------
+
+### 7. **IDE 中的快捷键与常用设置**
+
+- **折叠方法**：在 IntelliJ IDEA 中，使用快捷键 `Ctrl + Shift + -` 来折叠所有的方法和代码块，`Ctrl + Shift + +` 来展开所有的折叠部分。
+
+------
+
+### 8. **一个方法可以返回两个值吗？**
+
+在 Java 中，一个方法不能直接返回两个值，但有以下几种常见的方式可以模拟返回多个值：
+
+- **使用自定义对象**：通过定义一个类，将多个值作为对象的属性，然后返回这个对象。这样可以灵活地封装多个返回值。
+
+  **示例**：
+
+  ```java
+  public class Result {
+      private String name;
+      private int age;
+  
+      // 构造函数、getter 和 setter 方法省略
+  }
+  
+  public Result getUserDetails() {
+      return new Result("John", 25);
+  }
+  ```
+
+- **使用 `Map`**：如果返回的值没有复杂的逻辑，可以使用 `Map`，将每个值作为不同的键值对存储。
+
+  **示例**：
+
+  ```java
+  public Map<String, Object> getUserDetails() {
+      Map<String, Object> result = new HashMap<>();
+      result.put("name", "John");
+      result.put("age", 25);
+      return result;
+  }
+  ```
+
+- **使用 `Pair` 或 `Tuple` 类**：如果要返回两个值，可以使用像 `Pair` 这样的通用容器类，它可以存储两个值。
+
+  **示例**：
+
+  ```java
+  public class Pair<K, V> {
+      private K key;
+      private V value;
+  
+      // 构造函数、getter 和 setter 方法省略
+  }
+  
+  public Pair<String, Integer> getUserDetails() {
+      return new Pair<>("John", 25);
+  }
+  ```
+
+------
+
+### 9. **`List<?>`, `List<Object>`, `List<T>` 之间的区别及应用场景**
+
+- **`List<T>`**：`T` 是一个具体的类型参数，意味着列表只能存储这种类型的数据。`List<T>` 是一个具体的类型参数，可以容纳一个类型的数据，比如 `List<Integer>`, `List<String>` 等。
+
+  **适用场景**：当你明确知道集合中存储的是哪种类型的数据时使用 `List<T>`。
+
+  **示例**：
+
+  ```java
+  List<Integer> intList = new ArrayList<>();
+  intList.add(1);  // 只能添加 Integer 类型的元素
+  ```
+
+- **`List<?>`**：`?` 是一个通配符，表示列表中可以包含任何类型的元素，但你无法向该列表添加元素（除了 `null`）。它主要用于当你不关心具体类型时，或者你想确保可以处理任意类型的集合时。
+
+  **适用场景**：当你不关心集合中的元素类型时，可以使用 `List<?>`。它通常用于读取数据，而不是修改集合中的元素。
+
+  **示例**：
+
+  ```java
+  List<?> list = new ArrayList<String>();
+  // list.add("Hello"); // 编译错误，无法添加元素
+  ```
+
+- **`List<Object>`**：表示一个只能存储 `Object` 类型数据的列表，因为所有 Java 类都直接或间接继承自 `Object`，所以 `List<Object>` 可以存储任何类型的数据。
+
+  **适用场景**：当你想存储不同类型的元素时，可以使用 `List<Object>`。但是，取出元素时需要进行类型转换。
+
+  **示例**：
+
+  ```java
+  List<Object> list = new ArrayList<>();
+  list.add("Hello");
+  list.add(10);
+  list.add(3.14);
+  
+  String str = (String) list.get(0);  // 需要类型转换
+  ```
+
+------
+
+### 10. **如何使方法能够接收不同类型的 `List`（使用泛型）**
+
+为了让方法能够接收不同类型的 `List`，你可以将方法声明为泛型方法。通过使用泛型，你可以让方法接受任何类型的 `List`，而不限制其具体类型。
+
+**示例**：
+
+```java
+// 泛型方法，可以接受任何类型的 List
+public <T> String listToString(List<T> list) {
+    return StringUtils.join(list, ",");
+}
+
+// 使用方法时，可以传入不同类型的 List
+List<Integer> intList = new ArrayList<>();
+intList.add(1);
+intList.add(2);
+String result = listToString(intList);  // 传入 List<Integer>
+
+List<String> strList = new ArrayList<>();
+strList.add("A");
+strList.add("B");
+result = listToString(strList);  // 传入 List<String>
+```
+
+- 通过 `<T>` 声明泛型方法，`T` 表示类型参数，可以是任何类型。调用方法时，`List<T>` 会根据实际传入的 `List` 类型推断 `T`。
+
+------
+
+### **11. 类路径（Classpath）**
+
+#### **定义：**
+
+- 类路径是 **JVM（Java Virtual Machine）** 用来查找和加载类文件及其他资源文件的路径集合。它包含了 `.class` 文件、JAR 文件、配置文件等。
+
+#### **组成部分：**
+
+1. 编译后的 `.class` 文件：
+   - 位于 `target/classes` 等目录中。
+2. JAR 文件：
+   - 存放项目的依赖库，通常在 `lib/` 或 `BOOT-INF/lib/` 中。
+3. 资源文件：
+   - 如配置文件（`application.properties`、`application.yml`），模板文件，静态资源等。
+
+#### **设置类路径：**
+
+- 命令行：
+
+   使用 
+
+  ```bash
+  -cp
+  ```
+
+   或 
+
+  ```bash
+  -classpath
+  ```
+
+   参数指定类路径。
+
+  ```bash
+  java -cp "target/classes:lib/*" com.example.Application
+  ```
+
+- IDE（如 IntelliJ IDEA）中自动管理：
+
+  - 自动将编译后的 `.class` 文件和依赖 JAR 文件加入类路径。
+
+#### **类路径与 Spring Boot：**
+
+- 在 Spring Boot 中，类路径不仅包括 `.class` 文件，还包括打包后的 JAR 文件及其他资源文件。Spring Boot 会将所有依赖打包在一起，简化类路径管理。
+
+------
+
+### **12. `sheet` 方法区别：`getName()` 和 `getSheet()`**
+
+#### **`XSSFName` vs `XSSFSheet`**
+
+- **`getName("info")`**：
+  - **返回值类型：** `XSSFName`（表示一个命名区域）。
+  - **功能：** 获取工作表中定义的命名区域（例如一个范围或者一个区域的名称），返回的是一个对象，包含该命名区域的信息。
+- **`getSheet("info")`**：
+  - **返回值类型：** `XSSFSheet`（表示 Excel 工作表）。
+  - **功能：** 获取名为 `"info"` 的工作表，返回的是一个工作表对象。可以通过该对象访问该工作表中的数据、单元格、样式等。
+
+#### **区别总结：**
+
+- `getName()` 获取的是命名区域的描述，而 `getSheet()` 获取的是具体的工作表（`XSSFSheet`）对象。
+- 命名区域是指你在工作簿中通过名称指定的范围，可以在公式或其他计算中使用；而 `getSheet()` 让你访问具体的工作表，进行单元格操作等。
+
+------
+
+### **13. `short` 与 `int` 的区别**
+
+#### **`short` 类型：**
+
+- **大小：** 16 位（2 字节）。
+- **取值范围：** -32,768 到 32,767。
+- **默认值：** `0`。
+- **用途：** 当你需要存储小范围的整数时，使用 `short` 来节省内存空间。
+
+#### **`int` 类型：**
+
+- **大小：** 32 位（4 字节）。
+- **取值范围：** -2,147,483,648 到 2,147,483,647。
+- **默认值：** `0`。
+- **用途：** 通常用于大多数整数计算，特别是在涉及较大数值范围时。
+
+#### **区别总结：**
+
+1. **存储空间：**
+   `short` 占用 2 字节，`int` 占用 4 字节。`short` 比 `int` 节省内存，适用于需要节省内存的情况。
+2. **数值范围：**
+   `short` 的取值范围较小，适用于较小的整数；而 `int` 提供了更大的数值范围，适用于一般的整数计算。
+3. **性能：**
+   在大多数现代计算机中，`int` 由于与机器的字长（32 位）一致，通常会比 `short` 更高效，尤其在 64 位架构的处理器上，因此即使 `short` 占用更少的内存，`int` 在性能上常常占有优势。
+
+#### **何时使用 `short` 和 `int`：**
+
+- 如果你明确知道数值范围不超过 `short` 的范围，可以使用 `short` 来节省内存。
+- 但如果程序中的整数值范围较大，或你不确定数值范围，使用 `int` 更为常见和安全。

@@ -1,0 +1,123 @@
+### **1. 系统命令说明**
+
+- **`systemctl start docker`**
+
+  - 命令用于启动 **Docker** 服务。
+
+  - **全称**：`systemctl` 是系统服务管理器，用于控制和查询系统服务。
+
+  - 使用方法：
+
+    ```bash
+    systemctl start docker
+    ```
+
+    作用是启用 Docker 守护进程，让 Docker 服务正常运行。
+
+- **`sh /data/soft/restart.sh`**
+
+  - 命令用于在指定路径下执行 **restart.sh** 脚本。
+
+  - **全称**：`sh` 是 Shell 脚本解释器，用来执行脚本文件。
+
+  - 使用方法：
+
+    ```bash
+    sh /data/soft/restart.sh
+    ```
+
+    作用是运行 `/data/soft/restart.sh`脚本，用来执行自定义的操作，比如重启某些服务或清理缓存。
+
+------
+
+### **2. Collation 相关信息**
+
+- Collation（排序规则）在数据库中，Collation是用来指定字符集排序规则。
+  - **`utf8_general_ci`** 是 UTF-8 编码下的一个排序规则，常用在 MySQL 中。
+  - 含义：
+    - **`utf8`** 表示使用 UTF-8 字符集。
+    - **`general_ci`** 表示通用的 **不区分大小写**（case-insensitive）排序规则。
+  - 作用：
+    - 用于控制字符串在数据库中排序的规则。
+    - 如果需要区分大小写排序，可使用类似 `utf8_bin`。
+
+------
+
+### **3. `int unsigned` 类型**
+
+- `int unsigned`表示无符号整型。
+
+  - **`unsigned`** 是一个修饰符，用于定义该整数类型只能表示 **非负** 的数。
+
+- 含义：
+
+  - **`int`** 默认是有符号整数，可以表示正数、负数和零。
+  - **`unsigned int`**：只能表示 **非负数**（正数和零），范围通常是：`0` 到 `4,294,967,295`。
+
+- 示例：
+
+  ```c
+  int a = -10;            // 有符号整型，值可以为负
+  unsigned int b = 10;    // 无符号整型，只能为非负数
+  printf("b = %u\n", b);  // 输出：10
+  b = -10;                // 无符号类型赋值负数，可能会溢出，输出：4294967286
+  ```
+
+------
+
+### **4. Logback 库安全漏洞**
+
+- 消息内容：
+
+  - `ch.qos.logback:logback-classic:1.2.3` 依赖含有 **GHSA-vmq6-5m68-f53m** 安全漏洞，即 **Logback 序列化漏洞**。
+
+- **GHSA-vmq6-5m68-f53m**：Logback 序列化功能的已知漏洞，可能导致 **远程代码执行**。
+
+- 解决方法：
+
+  - 更新 `logback-classic` 到一个 **安全版本**，例如 `1.2.8` 或更高版本。
+
+  - Maven 项目配置：
+
+    ```xml
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.8</version>  <!-- 更新版本 -->
+        <scope>compile</scope>
+    </dependency>
+    ```
+
+- 检查其他依赖：
+
+  - 使用依赖管理工具（如 Maven 或 Gradle）来确保项目中没有其他引入类似 Logback 的安全风险。
+
+------
+
+### **5. 关于 `<packaging>pom</packaging>` 的说明**
+
+- **`<packaging>`**：这是 Maven 项目描述的一部分，定义了项目的类型或打包方式。
+
+#### **解释：**
+
+- 在 Maven 项目中，`<packaging>` 标签用于指定项目的类型。例如，是否是 **JAR**、**WAR**、**POM**、**EAR** 等。
+
+#### **`<packaging>pom</packaging>`**：
+
+- `pom`：这个 `<packaging>` 的值表明当前文件是一个 POM 文件，即 项目对象模型。
+  - **POM 文件**：Maven 项目的配置文件，包含了项目的依赖、构建过程、插件配置等信息。
+  - 在 Maven 项目中，每个模块的基本配置（如版本、依赖、插件等）都会记录在 `pom.xml` 文件中，且通常用于父子项目之间的管理。
+
+#### **举例**：
+
+```xml
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>example-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+</project>
+```
+
+- 这里的 `<packaging>pom</packaging>` 表示这是一个 POM 文件，通常用于管理父项目的依赖或信息。它不会被直接编译成 JAR、WAR、或其他可执行的包，而只是作为项目管理的核心配置文件。
